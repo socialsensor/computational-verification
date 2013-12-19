@@ -14,6 +14,7 @@ import weka.core.Instances;
  * by declaring the attributes,creating the testing set 
  * and perform the classification.
  * @author boididou
+ * boididou@iti.gr
  */
 public class ItemClassifier {
 	
