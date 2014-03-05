@@ -107,7 +107,7 @@ public class ItemClassifier {
 	}
 	
 	/**
-	 * @param listTest list of the ItemFeatures computed
+	 * @param listItemFeatures list of the ItemFeatures computed
 	 * @param itemFeaturesAnnot list of the items' annotation details
 	 * @return Instances that form the testing set
 	 */
@@ -156,6 +156,48 @@ public class ItemClassifier {
 	}
 	
 	/**
+	 * @param listItemFeatures the ItemFeatures computed for the MediaItem
+	 * @param listFeaturesAnnot the MediaItem's annotation details
+	 * @return Instances that form the testing set
+	 */
+	public static Instances createTestingSet(ItemFeatures listItemFeatures,ItemFeaturesAnnotation listFeaturesAnnot){
+		
+		
+		// Create an empty training set
+		Instances isTestSet = new Instances("Rel", fvAttributes, 1);           
+		// Set class index
+		isTestSet.setClassIndex(fvAttributes.size()-1);
+	
+		Instance inst  = new DenseInstance(fvAttributes.size());
+		
+		inst.setValue((Attribute)fvAttributes.get(0), listItemFeatures.itemLength);  
+		inst.setValue((Attribute)fvAttributes.get(1), listItemFeatures.numWords);
+		inst.setValue((Attribute)fvAttributes.get(2), listItemFeatures.containsQuestionMark.toString());
+		inst.setValue((Attribute)fvAttributes.get(3), listItemFeatures.containsExclamationMark.toString());
+		inst.setValue((Attribute)fvAttributes.get(4), listItemFeatures.numQuestionMark);
+		inst.setValue((Attribute)fvAttributes.get(5), listItemFeatures.numExclamationMark);
+		inst.setValue((Attribute)fvAttributes.get(6), listItemFeatures.containsHappyEmo.toString());
+		inst.setValue((Attribute)fvAttributes.get(7), listItemFeatures.containsSadEmo.toString());
+		inst.setValue((Attribute)fvAttributes.get(8), listItemFeatures.containsFirstOrderPron.toString());
+		inst.setValue((Attribute)fvAttributes.get(9), listItemFeatures.containsSecondOrderPron.toString());
+		inst.setValue((Attribute)fvAttributes.get(10), listItemFeatures.containsThirdOrderPron.toString());
+		inst.setValue((Attribute)fvAttributes.get(11), listItemFeatures.numUppercaseChars);
+		inst.setValue((Attribute)fvAttributes.get(12), listItemFeatures.numPosSentiWords);
+		inst.setValue((Attribute)fvAttributes.get(13), listItemFeatures.numNegSentiWords);
+		inst.setValue((Attribute)fvAttributes.get(14), listItemFeatures.numMentions);
+		inst.setValue((Attribute)fvAttributes.get(15), listItemFeatures.numHashtags);
+		inst.setValue((Attribute)fvAttributes.get(16), listItemFeatures.numURLs);
+		inst.setValue((Attribute)fvAttributes.get(17), listItemFeatures.retweetCount);
+			
+		inst.setValue((Attribute)fvAttributes.get(fvAttributes.size()-1), listFeaturesAnnot.getReliability());
+		
+		isTestSet.add(inst);
+		
+		return isTestSet;	
+		
+	}
+	
+	/**
 	 * @param isTestSet Instances of the test set
 	 * @return Boolean table of reliability values of the test set instances 
 	 * @throws Exception
@@ -171,7 +213,7 @@ public class ItemClassifier {
 		for (int i = 0; i < isTestSet.numInstances(); i++) {
 			
 			double pred = classifier.classifyInstance(isTestSet.instance(i));
-						
+			
 			//String actual = isTestSet.classAttribute().value((int)isTestSet.instance(i).classValue());
 			String predicted = isTestSet.classAttribute().value((int) pred);
 			
@@ -188,7 +230,19 @@ public class ItemClassifier {
 		return flags;
 	}
 	
-	
+	public static double[] findProbDistribution(Instances isTestSet) throws Exception{
+		
+		//probabilities variable
+		double[] probabilities = new double[isTestSet.size()];
+		SerializedClassifier classifier = new SerializedClassifier();
+		classifier.setModelFile(new File(Vars.MODEL_PATH_ITEM));
+		
+		for (int i = 0; i < isTestSet.numInstances(); i++) {
+			double[] probabilityDistribution = classifier.distributionForInstance(isTestSet.instance(i));
+			probabilities[i] = probabilityDistribution[1];
+		}
+		return probabilities;
+	}
 	
 
 }

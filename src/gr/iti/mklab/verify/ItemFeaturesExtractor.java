@@ -588,6 +588,72 @@ public class ItemFeaturesExtractor {
 		return itemFeaturesList;
 	}
 	
+	/**
+	 * Function that organizes the feature extraction of the given MediaItem
+	 * @param item the MediaItem for which features are extracted
+	 * @return ItemFeatures computed for the MediaItem
+	 */
+	public static ItemFeatures featureExtractionMedia(MediaItem item) {
+		
+		Long time1 = null;
+		Long time2 = null, sum = (long) 0;
+		Boolean isEnglish,isSpanish,isGerman;
+		Integer count = 0, count2 = 0, count3 = 0, count4=0, count5=0;
+		//List<ItemFeatures> itemFeaturesList = new ArrayList<ItemFeatures>();
+		
+		// create ItemFeatures object
+		ItemFeatures feat2 = new ItemFeatures();
+		
+		// extract features for each item 
+		
+			count++;
+			if (item.getId() != null) {
+				itemTitle = "";
+				itemTitle = item.getTitle().toString();
+				count2++;
+				isEnglish = isEnglishLang();
+				isSpanish = isSpanishLang();
+				isGerman = isGermanLang();
+				
+				if (isEnglish) {
+					count3++;
+					time1 = System.currentTimeMillis();
+					feat2 = extractFeatures(item,"en");
+					time2 = System.currentTimeMillis();
+
+					// save all the ItemFeatures items in a list
+					//itemFeaturesList.add(feat2);
+
+					sum = sum + (time2 - time1);
+				}
+				else if (isSpanish){
+					count4++;
+					feat2 = extractFeatures(item,"es");
+					//itemFeaturesList.add(feat2);
+					
+				}
+				else if (isGerman){
+					count5++;
+					feat2 = extractFeatures(item,"de");
+					//itemFeaturesList.add(feat2);
+					
+				}
+				
+			}
+		
+		// print info
+		//System.out.println();
+		System.out.println("Total items: " + count);
+		System.out.println("Items checked for language " + count2);
+		System.out.println("Items in English " + count3);
+		System.out.println("Items in Spanish " + count4);
+		System.out.println("Items in German " + count5);
+		
+		System.out.println("Total time:" + (double) sum / 1000 + " secs");
+		System.out.println("Time per tweet:" + (double) sum / count3 + " ms");
+
+		return feat2;
+	}
 
     static Gson gson = new GsonBuilder()
     .excludeFieldsWithoutExposeAnnotation()

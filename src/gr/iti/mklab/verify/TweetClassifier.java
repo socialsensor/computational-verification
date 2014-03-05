@@ -1,5 +1,6 @@
 package gr.iti.mklab.verify;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import weka.core.Attribute;
 import weka.core.Instances;
 import context.arch.discoverer.query.ClassifierWrapper;
 import eu.socialsensor.framework.client.dao.impl.MediaItemDAOImpl;
+import eu.socialsensor.framework.client.mongo.MongoHandler;
 import eu.socialsensor.framework.common.domain.MediaItem;
 
 /**
@@ -17,7 +19,7 @@ import eu.socialsensor.framework.common.domain.MediaItem;
 public class TweetClassifier {
 	
 	/**
-	 * Function that extracts MediaItem features, classifies the MediaItems
+	 * Function that extracts MediaItem features for a list of MediaItems, classifies them
 	 * and computes the tree condition path of the classification.
 	 * @param listItem the list of MediaItems need to be classified
 	 * @return ImageVerification list of the verification results(flag and description) of the classification
@@ -27,6 +29,7 @@ public class TweetClassifier {
 		Instances testSet;   
 			
 		boolean[] flagsReliability;
+		double[] probabilities;
 		List<ImageVerificationResult> verifyResults = new ArrayList<ImageVerificationResult>();
 		
 		//create ItemFeatures list to keep the features extracted
@@ -61,6 +64,8 @@ public class TweetClassifier {
 		//call methods to classify items and compute the J48 tree path
 		try {
 			flagsReliability = ItemClassifier.classifyItems(testSet);	
+			probabilities	 = ItemClassifier.findProbDistribution(testSet);
+			
 			J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_ITEM);
 			
 			//check if features computed for this item;if yes find the tree path, otherwise do nothing.
@@ -70,6 +75,7 @@ public class TweetClassifier {
 					if (listItem.get(i).getId().equals(listFeatures.get(j).id)){
 						
 						verifyResults.get(i).flag = flagsReliability[j];
+						verifyResults.get(i).fakePercentage = probabilities[j];
 						String result = J48Parser.findTreePath(testSet.get(j),ItemClassifier.fvAttributes,cModel);
 						verifyResults.get(i).explanation = result;
 						
@@ -84,10 +90,74 @@ public class TweetClassifier {
 		return verifyResults;
 	}
 	
+	/**
+	 * Function that extracts MediaItem features for a  MediaItem, classifies it
+	 * and computes the tree condition path of the classification.
+	 * @param item the MediaItem needs to be classified
+	 * @return ImageVerificationResult the result (flag and description) of the classification
+	 */
+	public static ImageVerificationResult tweetClassificationbyMediaItem(MediaItem item){
+		
+		Instances testSet;   
+			
+		boolean[] flagsReliability;
+		double[] probabilities;
+		
+		//create ItemFeatures list to keep the features extracted
+		ItemFeatures listFeatures;
+		listFeatures = ItemFeaturesExtractor.featureExtractionMedia(item);
+		
+		//annotate items
+		ItemFeaturesAnnotation itemAnnot = new ItemFeaturesAnnotation();
+		itemAnnot.id = listFeatures.id;
+		itemAnnot.reliability = "real";
+		
+
+		//call ItemClassifier method to declare the attributes used in classification and print them
+		ItemClassifier.declareAttributes();
+		System.out.println("Attributes ");
+		for (Attribute att:ItemClassifier.fvAttributes){
+			System.out.print(att.name()+",");
+		}
+		
+		//create testing set 
+		testSet = ItemClassifier.createTestingSet(listFeatures,itemAnnot);
+		
+		
+		ImageVerificationResult verifyResult = new ImageVerificationResult();
+		verifyResult.id = item.getId();
+		//verifyResults.add(verifyResult);
+		
+		System.out.println();
+		//call methods to classify items and compute the J48 tree path
+		try {
+			flagsReliability = ItemClassifier.classifyItems(testSet);	
+			probabilities	 = ItemClassifier.findProbDistribution(testSet);
+			
+			J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_ITEM);
+			
+			//check if features computed for this item;if yes find the tree path, otherwise do nothing.
+			//this way we count also items for which features could not be computed 
+			
+			if (item.getId().equals(listFeatures.id)){
+				
+				verifyResult.flag = flagsReliability[0];
+				verifyResult.fakePercentage = probabilities[0];
+				String result = J48Parser.findTreePath(testSet.get(0),ItemClassifier.fvAttributes,cModel);
+				verifyResult.explanation = result;
+				
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return verifyResult;
+	}
+	
 	
 	/**
-	 * Function that call methods to extract User features, classify the MediaItems
-	 * and compute the tree condition path of the classification.
+	 * Function that calls methods to extract User features, classifies the MediaItems
+	 * and computes the tree condition path of the classification.
 	 * @param listMediaItems the list of MediaItems need to be classified by user features
 	 * @return ImageVerification list of the verification results(flag and description) of the classification
 	 * @throws Exception
@@ -155,8 +225,8 @@ public class TweetClassifier {
 	}	
 	
 	/**
-	 * Function that call methods to extract User features, classify the MediaItems
-	 * and compute the tree condition path of the classification.
+	 * Function that calls methods to extract User features, classifies the MediaItems
+	 * and computes the tree condition path of the classification.
 	 * @param listItem the list of MediaItems need to be classified by user features
 	 * @return ImageVerification list of the verification results(flag and description) of the classification
 	 * @throws Exception
@@ -217,12 +287,14 @@ public class TweetClassifier {
 	
 	public static void main(String[] args) throws Exception {
 		
-		List<ImageVerificationResult> verif = new ArrayList<ImageVerificationResult>();
+
+		ImageVerificationResult verif = new ImageVerificationResult();
 		String flag;
 		
-		MediaItemDAOImpl dao3 = new MediaItemDAOImpl("160.40.50.207", "Streams", "MediaItems");
-		List<MediaItem> listMedia = dao3.getLastMediaItems(7);
-		verif = tweetClassificationbyMediaItem(listMedia);
+		MediaItemDAOImpl dao3 = new MediaItemDAOImpl("160.40.50.242", "Sochi", "ItemsFake");
+		MediaItem item = dao3.getMediaItem("Twitter#432025097746915329");
+
+		verif = tweetClassificationbyMediaItem(item);
 		
 		/*MediaItemDAOImpl dao4 = new MediaItemDAOImpl("160.40.50.207", "Streams", "MediaItems");
 		List<MediaItem> listMedia2 = dao4.getLastMediaItems(10);
@@ -233,21 +305,20 @@ public class TweetClassifier {
 		verif = tweetClassificationTotalMedia(listMedia3);*/
 		
 		//print info about tweet image verification result
-		for(int k=0;k<verif.size();k++){
-			System.out.println((k+1)+ " " +verif.get(k).id);
-			if (verif.get(k).explanation!=null){
-				if (verif.get(k).flag) flag="fake";
-				else flag="real";
-				System.out.println("Classified as "+flag);
-				System.out.println(verif.get(k).explanation);
-			}
-			else{
-				System.out.println("No available information found for this item.");
-				System.out.println();
-			}
-		}
-	
 		
+		System.out.println("MediaItem id: "+verif.id);
+		if (verif.explanation!=null){
+			if (verif.flag) flag="fake";
+			else flag="real";
+			System.out.println("Classified as "+flag);
+			System.out.println(verif.explanation);
+			
+		}
+		else{
+			System.out.println("No available information found for this item.");
+			System.out.println();
+		}
+
 	}
 
 }
