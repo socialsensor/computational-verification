@@ -15,9 +15,19 @@ public class ItemFeaturesAnnotation {
     @SerializedName(value = "reliability")
 	protected String reliability;
 	
+	public void setId(String id) {
+        this.id = id;
+    }
+	
+	public void setReliability(String reliability){
+		this.reliability = reliability;
+	}
+	
+	public String getId() {
+        return id;
+    }
 	
 	public String getReliability() {
 		return reliability;
 	}
-	
 }

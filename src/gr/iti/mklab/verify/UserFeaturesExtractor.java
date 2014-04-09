@@ -78,6 +78,15 @@ public class UserFeaturesExtractor {
 		uf.isVerified = suser.isVerified();
 		uf.numTweets = suser.getItems();
 		
+		/*System.out.println("username " + uf.username);
+		System.out.println("num friends " + uf.numFriends);
+		System.out.println("num followers " + uf.numFollowers);
+		System.out.println("ratio " + uf.FolFrieRatio );
+		System.out.println("times listed "+ uf.timesListed);
+		System.out.println("has url " + uf.hasURL);
+		System.out.println("is verified "+ uf.isVerified);
+		System.out.println("num tweets "+ uf.numTweets);*/
+		
 		return uf;
 	}
 
@@ -98,32 +107,51 @@ public class UserFeaturesExtractor {
     }
     
     /**
+     * Function that returns the StreamUser associated to the MediaItem
+     * @param id the StreamUser id 
+     * @return the StreamUser that has the specified id
+     */
+    public static StreamUser getStreamUser(String id){
+    	
+    	StreamUserDAOImpl dao = new StreamUserDAOImpl("160.40.50.242", "Malaysia", "StreamUsers");
+		StreamUser su = dao.getStreamUser(id);
+		return su;
+    }
+    
+    /**
+     * Function that organizes the UserFeature extraction of a MediaItem
+     * @param item from which the features need to be extracted
+     * @return UserFeatures userFeat the features extracted
+     */
+    public static UserFeatures userFeatureExtractionMedia(MediaItem item){
+    	UserFeatures userFeat = new UserFeatures();
+    	
+    	String id = item.getUserId().replace("Twitter#", "");
+    	
+    	StreamUser su = getStreamUser(id);
+    	
+    	userFeat = extractUserFeaturesMedia(su, item.getId());
+    	
+    	return userFeat;
+    }
+    
+    /**
      * Function that organizes the UserFeature extraction of a specified list of MediaItems
      * @param listMediaItems list of MediaItems need to be extracted
      * @return List of UserFeatures of the MediaItems
      */
     public static List<UserFeatures> userFeatureExtractionMedia(List<MediaItem> listMediaItems){
     	
-    	//find associated Items with the MediaItems
-		ItemDAOImpl dao3 = new ItemDAOImpl("160.40.50.207", "Streams", "Items");
-		List<Item> listItems = new ArrayList<Item>();
-		for (MediaItem mItem:listMediaItems){	
-			Item item = dao3.getItem(mItem.getRef());
-			listItems.add(item);
-		}
-		
     	List<UserFeatures> listUserFeat = new ArrayList<UserFeatures>();
     	
-    	for (int i=0;i<listItems.size();i++){
+    	for (int i=0;i<listMediaItems.size();i++){
     		
     		UserFeatures userFeatures = new UserFeatures();
     		
-    		StreamUserDAOImpl dao = new StreamUserDAOImpl("160.40.50.207", "Streams", "StreamUsers");
-    		String id = listItems.get(i).getUserId().replace("Twitter#", "");
+    		String id = listMediaItems.get(i).getUserId().replace("Twitter#", "");
+    		StreamUser su = getStreamUser(id);
     		
-    		StreamUser su = dao.getStreamUser(id);
-    		
-    		userFeatures = extractUserFeaturesMedia(su,listItems.get(i).getId());
+    		userFeatures = extractUserFeaturesMedia(su,listMediaItems.get(i).getId());
     		
     		listUserFeat.add(userFeatures);
     		

@@ -14,8 +14,19 @@ public class UserFeaturesAnnotation {
     @SerializedName(value = "reliability")
 	protected String reliability;
 	
+	public void setReliability(String reliability){
+		this.reliability = reliability;
+	}
+	
+	public void setUsername(String username){
+		this.username = username;
+	}
 	
 	public String getReliability() {
 		return reliability;
+	}
+	
+	public String getUsername(){
+		return username;
 	}
 }

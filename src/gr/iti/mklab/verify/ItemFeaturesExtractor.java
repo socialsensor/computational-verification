@@ -82,36 +82,36 @@ public class ItemFeaturesExtractor {
 
 		ItemFeatures feat = new ItemFeatures();
 
-		feat.id = item.getId();
-		feat.itemLength = itemTitle.length();
-		feat.numWords = getNumItemWords();
-		feat.containsQuestionMark = containsSymbol("?");
-		feat.containsExclamationMark = containsSymbol("!");
-		feat.numExclamationMark = getNumSymbol("!");
-		feat.numQuestionMark = getNumSymbol("?");
-		feat.containsHappyEmo = containsEmo(Vars.HAPPY_EMO_PATH);
-		feat.containsSadEmo = containsEmo(Vars.SAD_EMO_PATH);
-		feat.numUppercaseChars = getNumUppercaseChars();
-		feat.containsFirstOrderPron = containsPronoun(Vars.FIRST_PRON_PATH);
-		feat.containsSecondOrderPron = containsPronoun(Vars.SECOND_PRON_PATH);
-		feat.containsThirdOrderPron = containsPronoun(Vars.THIRD_PRON_PATH);
-		feat.numMentions = getNumMentions();
-		feat.numHashtags = getNumHashtags();
-		feat.numURLs = getNumURLs();
+		feat.setId(item.getId());
+		feat.setItemLength(itemTitle.length());
+		feat.setNumWords(getNumItemWords());
+		feat.setContainsQuestionMark(containsSymbol("?"));
+		feat.setContainsExclamationMark(containsSymbol("!"));
+		feat.setnumExclamationMark(getNumSymbol("!"));
+		feat.setnumQuestionMark(getNumSymbol("?"));
+		feat.setContainsHappyEmo(containsEmo(Vars.HAPPY_EMO_PATH));
+		feat.setContainsSadEmo(containsEmo(Vars.SAD_EMO_PATH));
+		feat.setNumUppercaseChars(getNumUppercaseChars());
+		feat.setContainsFirstOrderPron(containsPronoun(Vars.FIRST_PRON_PATH));
+		feat.setContainsSecondOrderPron(containsPronoun(Vars.SECOND_PRON_PATH));
+		feat.setContainsThirdOrderPron(containsPronoun(Vars.THIRD_PRON_PATH));
+		feat.setNumMentions(getNumMentions());
+		feat.setNumHashtags(getNumHashtags());
+		feat.setNumURLs(getNumURLs());
 		
 		if (lang.equals("en")) {
-			feat.numPosSentiWords = getNumSentiWords(Vars.POS_WORDS_ENG_PATH);
-			feat.numNegSentiWords = getNumSentiWords(Vars.NEG_WORDS_ENG_PATH);
+			feat.setNumPosSentiWords(getNumSentiWords(Vars.POS_WORDS_ENG_PATH));
+			feat.setNumNegSentiWords(getNumSentiWords(Vars.NEG_WORDS_ENG_PATH));
 		}
 		else if (lang.equals("es")) {
-			feat.numPosSentiWords = getNumSentiWords(Vars.POS_WORDS_ES_PATH);
-			feat.numNegSentiWords = getNumSentiWords(Vars.NEG_WORDS_ES_PATH);
+			feat.setNumPosSentiWords(getNumSentiWords(Vars.POS_WORDS_ES_PATH));
+			feat.setNumNegSentiWords(getNumSentiWords(Vars.NEG_WORDS_ES_PATH));
 		}
 		else if (lang.equals("de")) {
-			feat.numPosSentiWords = getNumSentiWords(Vars.POS_WORDS_DE_PATH); 
-			feat.numNegSentiWords = getNumSentiWords(Vars.NEG_WORDS_DE_PATH);
+			feat.setNumPosSentiWords(getNumSentiWords(Vars.POS_WORDS_DE_PATH)); 
+			feat.setNumNegSentiWords(getNumSentiWords(Vars.NEG_WORDS_DE_PATH));
 		}
-		feat.retweetCount = getRetweetsCount(item);
+		feat.setRetweetCount(getRetweetsCount(item));
 
 		return feat;
 	}
@@ -143,7 +143,7 @@ public class ItemFeaturesExtractor {
 		str = str.trim();
 		str = str.replaceAll("\\s+", " ");
 
-		// if (str.equals("\\s+")) str="";
+	
 
 		// split the result string by space
 		String tokens[] = str.split(" ");
@@ -440,86 +440,28 @@ public class ItemFeaturesExtractor {
 		Long numRetweets;
 		numRetweets = item.getShares();
 		
+		//print info
+		//System.out.println("Number of retweets: "+numRetweets);
 		return numRetweets;
 	}
 
-	/**
-	 * Checks Item text for english language
-	 * @return Boolean variable of whether the item language is english
-	 */
-	public static Boolean isEnglishLang() {
-		
-		Boolean isEnglish = false;
-		
-		// drop all URLs, hashtags and mentions - no need to detect the language
-		// on them
-		String str = itemTitle.replaceAll("http+s*+://[^ ]+", "")
-				.replaceAll("@[^ ]+", "").replaceAll("#[^ ]+ ", "");
-
-		// language detection only if the str is not empty in order to avoid exceptions
-		if (!str.trim().isEmpty()){
-			UberLanguageDetector detector = UberLanguageDetector.getInstance();
-			//System.out.println("string "+str);
-			String language = detector.detectLang(str);
-			//System.out.println("language "+detector.scoreLanguages(str));
-			if (language!=null && language.equals("en")) {
-				isEnglish = true;
-			}
-			
-		}
-		
-		return isEnglish;
-	}
 	
 	/**
-	 * Checks Item text for spanish language
-	 * @return Boolean variable of whether the item language is spanish
+	 * Returns the language of the given string
+	 * @param str
+	 * @return
 	 */
-	public static Boolean isSpanishLang() {
-		
-		Boolean isSpanish = false;
-		String str = itemTitle.replaceAll("http+s*+://[^ ]+", "")
-				.replaceAll("@[^ ]+", "").replaceAll("#[^ ]+ ", "");
-		
+	public static String getItemLang(String str){
+		String language = null;
 		if (!str.trim().isEmpty()){
 			UberLanguageDetector detector = UberLanguageDetector.getInstance();
-			//System.out.println("string "+str);
-			String language = detector.detectLang(str);
-			//System.out.println("language "+detector.scoreLanguages(str));
-			
-			if (language!=null && language.equals("es")) {
-				isSpanish = true;
-			}
-			
+			language = detector.detectLang(str);
 		}
-		return isSpanish;
-	}
-	
-	/**
-	 * Checks Item text for german language
-	 * @return Boolean variable of whether the item language is german
-	 */
-	public static Boolean isGermanLang() {
-		
-		Boolean isGerman = false;
-		
-		String str = itemTitle.replaceAll("http+s*+://[^ ]+", "")
-				.replaceAll("@[^ ]+", "").replaceAll("#[^ ]+ ", "");
-		
-		if (!str.trim().isEmpty()){
-			UberLanguageDetector detector = UberLanguageDetector.getInstance();
-			//System.out.println("string "+str);
-			String language = detector.detectLang(str);
-			//System.out.println("language "+detector.scoreLanguages(str));
-			
-			if (language!=null && language.equals("de")) {
-				isGerman = true;
-			}
-			
+		if (language==null){
+			language = "nolang";
 		}
-		return isGerman;
+		return language;
 	}
-	
 	
 	/**
 	 * Function that organizes the feature extraction of the given list of MediaItems
@@ -530,8 +472,8 @@ public class ItemFeaturesExtractor {
 		
 		Long time1 = null;
 		Long time2 = null, sum = (long) 0;
-		Boolean isEnglish,isSpanish,isGerman;
-		Integer count = 0, count2 = 0, count3 = 0, count4=0, count5=0;
+		
+		Integer count = 0, count2 = 0, count3 = 0, count4=0, count5=0, count6=0;
 		List<ItemFeatures> itemFeaturesList = new ArrayList<ItemFeatures>();
 		
 		// create ItemFeatures object
@@ -541,14 +483,18 @@ public class ItemFeaturesExtractor {
 		for (int i = 0; i < listMediaItems.size(); i++) {
 			count++;
 			if (listMediaItems.get(i).getId() != null) {
+				
 				itemTitle = "";
 				itemTitle = listMediaItems.get(i).getTitle().toString();
-				count2++;
-				isEnglish = isEnglishLang();
-				isSpanish = isSpanishLang();
-				isGerman = isGermanLang();
 				
-				if (isEnglish) {
+				String str = itemTitle.replaceAll("http+s*+://[^ ]+", "").replaceAll("@[^ ]+", "").replaceAll("#[^ ]+ ", "").replaceAll("RT", "").toLowerCase().trim();
+				
+				String lang = getItemLang(str);
+				
+				count2++;
+				
+				
+				if (lang.equals("en")) {
 					count3++;
 					time1 = System.currentTimeMillis();
 					feat2 = extractFeatures(listMediaItems.get(i),"en");
@@ -559,31 +505,37 @@ public class ItemFeaturesExtractor {
 
 					sum = sum + (time2 - time1);
 				}
-				else if (isSpanish){
+				else if (lang.equals("es")){
 					count4++;
 					feat2 = extractFeatures(listMediaItems.get(i),"es");
 					itemFeaturesList.add(feat2);
 					
 				}
-				else if (isGerman){
+				else if (lang.equals("de")){
 					count5++;
 					feat2 = extractFeatures(listMediaItems.get(i),"de");
 					itemFeaturesList.add(feat2);
 					
+				}
+				else if (lang.equals("nolang")){
+					count6++;
+					feat2 = extractFeatures(listMediaItems.get(i),"en");
+					itemFeaturesList.add(feat2);
 				}
 				
 			}
 		}
 		// print info
 		//System.out.println();
-		System.out.println("Total items: " + count);
-		System.out.println("Items checked for language " + count2);
+		/*System.out.println("Total items: " + count);
+		//System.out.println("Items checked for language " + count2);
 		System.out.println("Items in English " + count3);
 		System.out.println("Items in Spanish " + count4);
 		System.out.println("Items in German " + count5);
+		System.out.println("Items with no language "+ count6);
 		
 		System.out.println("Total time:" + (double) sum / 1000 + " secs");
-		System.out.println("Time per tweet:" + (double) sum / count3 + " ms");
+		System.out.println("Time per tweet:" + (double) sum / count3 + " ms");*/
 
 		return itemFeaturesList;
 	}
@@ -597,8 +549,8 @@ public class ItemFeaturesExtractor {
 		
 		Long time1 = null;
 		Long time2 = null, sum = (long) 0;
-		Boolean isEnglish,isSpanish,isGerman;
-		Integer count = 0, count2 = 0, count3 = 0, count4=0, count5=0;
+		
+		Integer count = 0, count2 = 0, count3 = 0, count4=0, count5=0, count6=0;
 		//List<ItemFeatures> itemFeaturesList = new ArrayList<ItemFeatures>();
 		
 		// create ItemFeatures object
@@ -610,48 +562,53 @@ public class ItemFeaturesExtractor {
 			if (item.getId() != null) {
 				itemTitle = "";
 				itemTitle = item.getTitle().toString();
-				count2++;
-				isEnglish = isEnglishLang();
-				isSpanish = isSpanishLang();
-				isGerman = isGermanLang();
 				
-				if (isEnglish) {
+				count2++;
+				
+				String str = itemTitle.replaceAll("http+s*+://[^ ]+", "").replaceAll("@[^ ]+", "").replaceAll("#[^ ]+ ", "").replaceAll("RT","").toLowerCase().trim();
+				
+				String lang = getItemLang(str);
+				
+				if (lang.equals("en")) {
 					count3++;
 					time1 = System.currentTimeMillis();
 					feat2 = extractFeatures(item,"en");
 					time2 = System.currentTimeMillis();
 
-					// save all the ItemFeatures items in a list
-					//itemFeaturesList.add(feat2);
-
 					sum = sum + (time2 - time1);
 				}
-				else if (isSpanish){
+				else if (lang.equals("es")){
 					count4++;
 					feat2 = extractFeatures(item,"es");
-					//itemFeaturesList.add(feat2);
-					
+
 				}
-				else if (isGerman){
+				else if (lang.equals("de")){
 					count5++;
 					feat2 = extractFeatures(item,"de");
-					//itemFeaturesList.add(feat2);
-					
+
+				}
+				else if (lang.equals("nolang")){
+					count6++;
+					feat2 = extractFeatures(item,"en");				
+				}
+				else{
+					feat2 = null;
 				}
 				
 			}
 		
 		// print info
 		//System.out.println();
-		System.out.println("Total items: " + count);
-		System.out.println("Items checked for language " + count2);
+		/*System.out.println("Total items: " + count);
+		//System.out.println("Items checked for language " + count2);
 		System.out.println("Items in English " + count3);
 		System.out.println("Items in Spanish " + count4);
 		System.out.println("Items in German " + count5);
+		System.out.println("Items with no language "+ count6);
 		
 		System.out.println("Total time:" + (double) sum / 1000 + " secs");
-		System.out.println("Time per tweet:" + (double) sum / count3 + " ms");
-
+		System.out.println("Time per tweet:" + (double) sum / count3 + " ms");*/
+			
 		return feat2;
 	}
 
@@ -671,3 +628,4 @@ public class ItemFeaturesExtractor {
     }
 	
 }
+ 

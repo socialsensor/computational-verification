@@ -34,5 +34,41 @@ public class ImageVerificationResult implements JSONable {
 		Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 		return gson.toJson(this);
 	}
-
+	
+	public String getId(){
+		return id;
+	}
+	
+	public boolean getFlag(){
+		return flag;
+	}
+	
+	public double getFakePercentage(){
+		return fakePercentage;
+	}
+	
+	public String getExplanation(){
+		return explanation;
+	}
+	
+	public void setId(String id){
+		this.id = id;
+	}
+	
+	public void setFlag(boolean flag){
+		this.flag = flag;
+	}
+	
+	public void setFakePercentage(double fakePercentage){
+		this.fakePercentage = fakePercentage;
+	}
+	
+	public void setExplanation(String explanation){
+		this.explanation = explanation;
+	}
+	
+	
+	
+	
+	
 }

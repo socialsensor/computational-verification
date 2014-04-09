@@ -24,7 +24,7 @@ public class Vars {
 	public static final String NEG_WORDS_DE_PATH = "resources/files/negative-words-german.txt";
 
 	//Classification
-	public static final String MODEL_PATH_ITEM = "resources/model/j48.model";
+	public static final String MODEL_PATH_ITEM = "resources/model/j48updated.model";
 	public static final String MODEL_PATH_TOTAL= "resources/model/j48total.model";
 	public static final String MODEL_PATH_USER= "resources/model/j48user.model";
 	

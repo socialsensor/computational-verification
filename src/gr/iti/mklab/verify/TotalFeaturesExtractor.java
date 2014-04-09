@@ -14,6 +14,41 @@ import eu.socialsensor.framework.common.domain.MediaItem;
 public class TotalFeaturesExtractor {
 
  
+	public static TotalFeatures extractTotalFeatures(ItemFeatures itemFeatures, UserFeatures itemUserFeatures){
+		
+		TotalFeatures totFeat = new TotalFeatures();
+		
+		totFeat.setId(itemFeatures.getId());
+		totFeat.setItemLength(itemFeatures.getItemLength());
+		totFeat.setNumWords(itemFeatures.getNumWords());
+		totFeat.setContainsQuestionMark(itemFeatures.getContainsQuestionMark());
+		totFeat.setContainsExclamationMark(itemFeatures.getContainsExclamationMark());
+		totFeat.setnumQuestionMark(itemFeatures.getnumQuestionMark());
+		totFeat.setnumExclamationMark(itemFeatures.getnumExclamationMark());
+		totFeat.setContainsHappyEmo(itemFeatures.getContainsHappyEmo());
+		totFeat.setContainsSadEmo(itemFeatures.getContainsSadEmo());
+		totFeat.setContainsFirstOrderPron(itemFeatures.getContainsFirstOrderPron());
+		totFeat.setContainsSecondOrderPron(itemFeatures.getContainsSecondOrderPron());
+		totFeat.setContainsThirdOrderPron(itemFeatures.getContainsThirdOrderPron());
+		totFeat.setNumUppercaseChars(itemFeatures.getNumUppercaseChars());
+		totFeat.setNumPosSentiWords(itemFeatures.getNumPosSentiWords());
+		totFeat.setNumNegSentiWords(itemFeatures.getNumNegSentiWords());
+		totFeat.setNumMentions(itemFeatures.getNumMentions());
+		totFeat.setNumHashtags(itemFeatures.getNumHashtags());
+		totFeat.setNumURLs(itemFeatures.getNumURLs());
+		totFeat.setRetweetCount(itemFeatures.getRetweetCount());
+		totFeat.setUsername(itemUserFeatures.getUsername());
+		totFeat.setnumFriends(itemUserFeatures.getnumFriends());
+		totFeat.setnumFollowers(itemUserFeatures.getnumFollowers());
+		totFeat.setFolFriendRatio(itemUserFeatures.getFolFrieRatio());
+		totFeat.settimesListed(itemUserFeatures.gettimesListed());
+		totFeat.sethasUrl(itemUserFeatures.gethasURL());
+		totFeat.setisVerified(itemUserFeatures.getisVerified());
+		totFeat.setnumTweets(itemUserFeatures.getnumTweets());
+		
+		return totFeat;
+	}
+	
     /**
      * Function that performs Item and User feature extraction of a MediaItem
      * @param listMediaItems the list of MediaItems need to be extracted
@@ -29,37 +64,30 @@ public class TotalFeaturesExtractor {
 		List<TotalFeatures> totalFeatures = new ArrayList<TotalFeatures>();
 		
 		for (int i=0;i<itemFeatures.size();i++){
-			TotalFeatures totFeat = new TotalFeatures();
-			totFeat.id = itemFeatures.get(i).id;
-			totFeat.itemLength = itemFeatures.get(i).itemLength;
-			totFeat.numWords = itemFeatures.get(i).numWords;
-			totFeat.containsQuestionMark = itemFeatures.get(i).containsQuestionMark;
-			totFeat.containsExclamationMark=itemFeatures.get(i).containsExclamationMark;
-			totFeat.numQuestionMark = itemFeatures.get(i).numQuestionMark;
-			totFeat.numExclamationMark = itemFeatures.get(i).numExclamationMark;
-			totFeat.containsHappyEmo = itemFeatures.get(i).containsHappyEmo;
-			totFeat.containsSadEmo = itemFeatures.get(i).containsSadEmo;
-			totFeat.containsFirstOrderPron = itemFeatures.get(i).containsFirstOrderPron;
-			totFeat.containsSecondOrderPron = itemFeatures.get(i).containsSecondOrderPron;
-			totFeat.containsThirdOrderPron = itemFeatures.get(i).containsThirdOrderPron;
-			totFeat.numUppercaseChars = itemFeatures.get(i).numUppercaseChars;
-			totFeat.numPosSentiWords = itemFeatures.get(i).numPosSentiWords;
-			totFeat.numNegSentiWords = itemFeatures.get(i).numNegSentiWords;
-			totFeat.numMentions = itemFeatures.get(i).numMentions;
-			totFeat.numHashtags = itemFeatures.get(i).numHashtags;
-			totFeat.numURLs = itemFeatures.get(i).numURLs;
-			totFeat.retweetCount = itemFeatures.get(i).retweetCount;
-			totFeat.username = itemUserFeatures.get(i).username;
-			totFeat.numFriends = itemUserFeatures.get(i).numFriends;
-			totFeat.numFollowers = itemUserFeatures.get(i).numFollowers;
-			totFeat.FolFrieRatio = itemUserFeatures.get(i).FolFrieRatio;
-			totFeat.timesListed = itemUserFeatures.get(i).timesListed;
-			totFeat.hasURL = itemUserFeatures.get(i).hasURL;
-			totFeat.isVerified = itemUserFeatures.get(i).isVerified;
-			totFeat.numTweets = itemUserFeatures.get(i).numTweets;
 			
+			TotalFeatures totFeat = extractTotalFeatures(itemFeatures.get(i),itemUserFeatures.get(i));
 			totalFeatures.add(totFeat);
 		}
+		
+    	return totalFeatures;			
+    }
+    
+    /**
+     * Function that performs Item and User feature extraction of a MediaItem
+     * @param listMediaItems the list of MediaItems need to be extracted
+     * @return TotalFeatures list of the features extracted
+     */
+    public static TotalFeatures featureExtractionMedia(MediaItem item) {
+    	
+    	
+		//extract item features of the MediaItem
+		ItemFeatures itemFeatures = ItemFeaturesExtractor.featureExtractionMedia(item);
+
+		//extract user features of the MediaItem
+		UserFeatures itemUserFeatures = UserFeaturesExtractor.userFeatureExtractionMedia(item);
+
+		TotalFeatures totalFeatures = extractTotalFeatures(itemFeatures, itemUserFeatures);
+				
 		
     	return totalFeatures;			
     }

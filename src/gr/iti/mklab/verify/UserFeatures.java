@@ -49,6 +49,37 @@ public class UserFeatures implements JSONable{
     @SerializedName(value = "numTweets")
 	protected Integer numTweets;
 	
+	public void setId(String id){
+		this.id = id;
+	}
+	public void setUsername(String username){
+		this.username = username;
+	}
+	public void setnumFriends(Long numFriends){
+		this.numFriends = numFriends;
+	}
+	public void setnumFollowers(Long numFollowers){
+		this.numFollowers = numFollowers;
+	}
+	public void setFolFriendRatio(Float FolFriendRatio){
+		this.FolFrieRatio = FolFriendRatio;
+	}
+	public void setiimesListed(Long timesListed){
+		this.timesListed = timesListed;
+	}
+	public void sethasUrl(Boolean hasUrl){
+		this.hasURL = hasUrl;
+	}
+	public void setisVerified(Boolean isVerified){
+		this.isVerified = isVerified;
+	}
+	public void setnumTweets(Integer numTweets){
+		this.numTweets = numTweets;
+	}
+	
+	public String getId(){
+		return id;
+	}
 	public String getUsername() {
         return username;
     }
@@ -67,9 +98,13 @@ public class UserFeatures implements JSONable{
 	public Boolean gethasURL(){
 		return hasURL;
 	}
+	public Boolean getisVerified(){
+		return isVerified;
+	}
 	public Integer getnumTweets(){
 		return numTweets;
 	}
+	
 	@Override
 	public String toJSONString() {
 		Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();

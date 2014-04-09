@@ -20,8 +20,12 @@ public class UserClassifier {
 	public static List<UserFeatures> train = new ArrayList<UserFeatures>(); 
 	public static List<UserFeatures> test = new ArrayList<UserFeatures>();
 	
-	static ArrayList<Attribute> fvAttributes = new ArrayList<Attribute>(7);
+	static ArrayList<Attribute> fvAttributes = new ArrayList<Attribute>();
 	public static Instances isTrainingSet,isTestingSet;
+	
+	public static ArrayList<Attribute> getFvAttributes(){
+		return fvAttributes;
+	}
 	
 	/**
 	 * @return List of attributes needed for the classification
@@ -63,7 +67,25 @@ public class UserClassifier {
 		return fvAttributes;
 	}
 	
-	
+	/**
+	 * @param listUserFeatures the features of the current User
+	 * @return Instance created
+	 */
+	public static Instance createInstance(UserFeatures listUserFeatures){
+		
+		Instance inst = new DenseInstance(fvAttributes.size());
+		
+		inst.setValue((Attribute)fvAttributes.get(0), listUserFeatures.getnumFriends());  
+		inst.setValue((Attribute)fvAttributes.get(1), listUserFeatures.getnumFollowers());  
+		inst.setValue((Attribute)fvAttributes.get(2), listUserFeatures.getFolFrieRatio());  
+		inst.setValue((Attribute)fvAttributes.get(3), listUserFeatures.gettimesListed());  
+		inst.setValue((Attribute)fvAttributes.get(4), String.valueOf(listUserFeatures.gethasURL()));  
+		inst.setValue((Attribute)fvAttributes.get(5), String.valueOf(listUserFeatures.getisVerified())); 
+		inst.setValue((Attribute)fvAttributes.get(6), listUserFeatures.getnumTweets());
+
+		return inst;
+	}
+		
 	/**
 	 * @param list of the UserFeatures computed
 	 * @param itemFeaturesAnnot list of the users' annotation details
@@ -81,17 +103,15 @@ public class UserClassifier {
 		for (int i=0;i<listUserFeatures.size();i++){
 			
 			//declare instance and define its values
-			Instance inst  = new DenseInstance(fvAttributes.size());
+			Instance inst  = createInstance(listUserFeatures.get(i));
 			
-			inst.setValue((Attribute)fvAttributes.get(0), listUserFeatures.get(i).numFriends);  
-			inst.setValue((Attribute)fvAttributes.get(1), listUserFeatures.get(i).numFollowers);  
-			inst.setValue((Attribute)fvAttributes.get(2), listUserFeatures.get(i).FolFrieRatio);  
-			inst.setValue((Attribute)fvAttributes.get(3), listUserFeatures.get(i).timesListed);  
-			inst.setValue((Attribute)fvAttributes.get(4), listUserFeatures.get(i).hasURL.toString());  
-			inst.setValue((Attribute)fvAttributes.get(5), listUserFeatures.get(i).isVerified.toString()); 
-			inst.setValue((Attribute)fvAttributes.get(6), listUserFeatures.get(i).numTweets);
+			for (int j=0;j<listFeaturesAnnot.size();j++){
+				if (listUserFeatures.get(i).getUsername().equals(listFeaturesAnnot.get(j).getUsername())){
+					index = j;
+				}
+			}	
 			
-			inst.setValue((Attribute)fvAttributes.get(fvAttributes.size()-1), listFeaturesAnnot.get(i).getReliability());
+			inst.setValue((Attribute)fvAttributes.get(fvAttributes.size()-1), listFeaturesAnnot.get(index).getReliability());
 			//add the instance to the testing set
 			isTestingSet.add(inst);
 		}
@@ -99,7 +119,29 @@ public class UserClassifier {
 		return isTestingSet;
 	}
 	
+	/**
+	 * @param listUserFeatures the features for the MediaItem
+	 * @param listFeaturesAnnot the User's annotation details
+	 * @return Instances that form the testing set
+	 * @throws Exception
+	 */
+	public static Instances createTestingSet(UserFeatures listUserFeatures, UserFeaturesAnnotation listFeaturesAnnot) throws Exception{
+		
+		//create an empty training set and then keep the instances 
+		Instances isTestingSet = new Instances("Rel", fvAttributes, 1);        
+		// Set class index
+		isTestingSet.setClassIndex(fvAttributes.size()-1);
 
+		//declare instance and define its values
+		Instance inst  = createInstance(listUserFeatures);
+		inst.setValue((Attribute)fvAttributes.get(fvAttributes.size()-1), listFeaturesAnnot.getReliability());
+		
+		//add the instance to the testing set
+		isTestingSet.add(inst);
+		
+		return isTestingSet;
+	}
+	
 	/**
 	 * @param isTestSet Instances of the test set
 	 * @return Boolean table of reliability values of the test set instances
@@ -115,7 +157,7 @@ public class UserClassifier {
 		for (int i = 0; i < isTestSet.numInstances(); i++) {
 			
 			double pred = classifier.classifyInstance(isTestSet.instance(i));
-			String actual = isTestSet.classAttribute().value((int)isTestSet.instance(i).classValue());
+			
 			String predicted = isTestSet.classAttribute().value((int) pred);
 
 			if (predicted=="fake"){
@@ -130,5 +172,23 @@ public class UserClassifier {
 		return flags;
 	}
 	
-	
+	/**
+	 * @param isTestSet the current Instances of the dataset
+	 * @return double[] distribution probabilities
+	 * @throws Exception file
+	 */
+	public static double[] findProbDistribution(Instances isTestSet) throws Exception{
+		
+		//probabilities variable
+		double[] probabilities = new double[isTestSet.size()];
+		SerializedClassifier classifier = new SerializedClassifier();
+		classifier.setModelFile(new File(Vars.MODEL_PATH_USER));
+		
+		for (int i = 0; i < isTestSet.numInstances(); i++) {
+			double[] probabilityDistribution = classifier.distributionForInstance(isTestSet.instance(i));
+			probabilities[i] = probabilityDistribution[1];
+		}
+		
+		return probabilities;
+	}
 }
