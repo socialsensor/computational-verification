@@ -56,9 +56,9 @@ public class TotalFeaturesExtractor {
      */
     public static List<TotalFeatures> featureExtractionMedia(List<MediaItem> listMediaItems) {
 
-		//extract features of fake items
+		//extract features of the items
 		List<ItemFeatures> itemFeatures = ItemFeaturesExtractor.featureExtractionMedia(listMediaItems);
-		//extract user features of fake items
+		//extract user features of the items
 		List<UserFeatures> itemUserFeatures = UserFeaturesExtractor.userFeatureExtractionMedia(listMediaItems);
 
 		List<TotalFeatures> totalFeatures = new ArrayList<TotalFeatures>();

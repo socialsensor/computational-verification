@@ -1,6 +1,5 @@
 package gr.iti.mklab.verify;
 
-import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +9,6 @@ import weka.core.Attribute;
 import weka.core.Instances;
 import context.arch.discoverer.query.ClassifierWrapper;
 import eu.socialsensor.framework.client.dao.impl.MediaItemDAOImpl;
-import eu.socialsensor.framework.client.mongo.MongoHandler;
 import eu.socialsensor.framework.common.domain.MediaItem;
 
 /**
@@ -455,9 +453,77 @@ public class TweetClassifier {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
+	/**
+	 * Auxiliary function to organize the cross validation process
+	 * Calls the appropriate crossValidate method depending on the features (Item, User or Total) 
+	 */
+	public static void performCrossValidationExample(){
 		
-		/* === Classification for one MediaItem === */
+		//get fake items
+		MediaItemDAOImpl daof = new MediaItemDAOImpl("ip", "dbname", "collectionname");
+		List<MediaItem> itemsFake = daof.getLastMediaItems(100);
+		
+		//get real items
+		MediaItemDAOImpl daor = new MediaItemDAOImpl("ip", "dbname", "collectionname");
+		List<MediaItem> itemsReal = daor.getLastMediaItems(100);
+		
+		try {
+			ItemClassifier.crossValidate(itemsFake, itemsReal);
+			UserClassifier.crossValidate(itemsFake, itemsReal);
+			TotalClassifier.crossValidate(itemsFake, itemsReal);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void performClassificationExample(){
+		
+		//get fake items
+		MediaItemDAOImpl daof = new MediaItemDAOImpl("ip", "dbname", "collectionname");
+		List<MediaItem> itemsFake = daof.getLastMediaItems(200);
+		
+		//get real items
+		MediaItemDAOImpl daor = new MediaItemDAOImpl("ip", "dbname", "collectionname");
+		List<MediaItem> itemsReal = daor.getLastMediaItems(200);
+		
+		List<MediaItem> itemsFakeTrain = new ArrayList<MediaItem>();
+		List<MediaItem> itemsFakeTest  = new ArrayList<MediaItem>();
+		List<MediaItem> itemsRealTrain = new ArrayList<MediaItem>();
+		List<MediaItem> itemsRealTest  = new ArrayList<MediaItem>();
+		
+		for (int i=0;i<itemsFake.size();i++){
+			if (i<150){
+				itemsFakeTrain.add(itemsFake.get(i));
+			}
+			else{
+				itemsFakeTest.add(itemsFake.get(i));
+			}
+		}
+		
+		for (int i=0;i<itemsReal.size();i++){
+			if (i<150){
+				itemsRealTrain.add(itemsReal.get(i));
+			}
+			else{
+				itemsRealTest.add(itemsReal.get(i));
+			}
+		}
+		
+		try {
+			ItemClassifier.doClassification(itemsFakeTrain, itemsFakeTest, itemsRealTrain, itemsRealTest);
+			UserClassifier.doClassification(itemsFakeTrain, itemsFakeTest, itemsRealTrain, itemsRealTest);
+			TotalClassifier.doClassification(itemsFakeTrain, itemsFakeTest, itemsRealTrain, itemsRealTest);	
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Function that presents the verification of a MediaItem or of a list of MediaItems
+	 * @throws Exception
+	 */
+	public static void ItemVerificationExample() throws Exception{
+		/* === Classification for a MediaItem === */
 		
 		//define the verification object
 		ImageVerificationResult verif = new ImageVerificationResult();
@@ -467,8 +533,8 @@ public class TweetClassifier {
 		MediaItemDAOImpl dao3 = new MediaItemDAOImpl("ip", "dbname", "collectionname");
 		MediaItem item = dao3.getMediaItem("Twitter#445854762949677056");
 		
-		//Classification by using Content(Tweet) features
-		System.out.println(" === Classification using Content Features === ");
+		//Classification by using Item(Content) features
+		System.out.println(" === Classification using Item(Content) Features === ");
 		verif = tweetClassificationbyMediaItem(item);
 		printVerificationResults(verif);
 		
@@ -483,7 +549,6 @@ public class TweetClassifier {
 		printVerificationResults(verif);
 		
 		
-		
 		/* === Classification for a list of MediaItem === */
 		
 		//define the list of verification objects
@@ -493,8 +558,8 @@ public class TweetClassifier {
 		MediaItemDAOImpl dao = new MediaItemDAOImpl("ip", "dbname", "collectionname");
 		List<MediaItem> listMedia2 = dao.getLastMediaItems(5);
 		
-		//Classification by using Content(Tweet) features
-		System.out.println(" === Classification using Content Features === ");
+		//Classification by using Item(Content) features
+		System.out.println(" === Classification using Item(Content) Features === ");
 		verifs = tweetClassificationbyMediaItem(listMedia2);
 		
 		for (int i=0;i<listMedia2.size();i++){
@@ -509,15 +574,26 @@ public class TweetClassifier {
 			printVerificationResults(verifs.get(i));
 		}
 		
-		//Classification by using Total(Content & Tweet) features
+		//Classification by using Total(Item & User) features
 		System.out.println(" === Classification using Total Features === ");
 		verifs = tweetClassificationTotalMedia(listMedia2);
 		
 		for (int i=0;i<listMedia2.size();i++){
 			printVerificationResults(verifs.get(i));
 		}
-
-
+	}
+	
+	/**
+	 * Main auxiliary class used to call the methods
+	 * @param args
+	 * @throws Exception
+	 */
+	public static void main(String[] args) throws Exception {
+		
+		ItemVerificationExample();
+		performCrossValidationExample();
+		performClassificationExample();
+		
 	}
 
 }

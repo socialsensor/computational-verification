@@ -1,22 +1,12 @@
 package gr.iti.mklab.verify;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import eu.socialsensor.framework.client.dao.impl.ItemDAOImpl;
 import eu.socialsensor.framework.client.dao.impl.StreamUserDAOImpl;
-import eu.socialsensor.framework.client.mongo.MongoHandler;
-import eu.socialsensor.framework.common.domain.Item;
 import eu.socialsensor.framework.common.domain.MediaItem;
 import eu.socialsensor.framework.common.domain.StreamUser;
 
@@ -26,6 +16,9 @@ import eu.socialsensor.framework.common.domain.StreamUser;
  * @author boididou
  */
 public class UserFeaturesExtractor {
+	
+	static String db;
+	static String collection;
 	
 	/**
 	 * @param numFr Integer number of friends of the user
@@ -66,17 +59,17 @@ public class UserFeaturesExtractor {
 		UserFeatures uf = new UserFeatures();
 		
 		Long numFr,numFol;
-		uf.id = id;
-		uf.username = suser.getUsername();
-		uf.numFriends = suser.getFriends();
-		uf.numFollowers = suser.getFollowers();
-		numFr = uf.numFriends;
-		numFol = uf.numFollowers;
-		uf.FolFrieRatio =  getFollowerFriendRatio(numFr,numFol);
-		uf.timesListed = suser.getListedCount();
-		uf.hasURL = hasUrl(suser);
-		uf.isVerified = suser.isVerified();
-		uf.numTweets = suser.getItems();
+		uf.setId(id);
+		uf.setUsername(suser.getUsername());
+		uf.setnumFriends(suser.getFriends());
+		uf.setnumFollowers(suser.getFollowers());
+		numFr = uf.getnumFriends();
+		numFol = uf.getnumFollowers();
+		uf.setFolFriendRatio(getFollowerFriendRatio(numFr,numFol));
+		uf.setiimesListed(suser.getListedCount());
+		uf.sethasUrl(hasUrl(suser));
+		uf.setisVerified(suser.isVerified());
+		uf.setnumTweets(suser.getItems());
 		
 		/*System.out.println("username " + uf.username);
 		System.out.println("num friends " + uf.numFriends);
@@ -113,7 +106,7 @@ public class UserFeaturesExtractor {
      */
     public static StreamUser getStreamUser(String id){
     	
-    	StreamUserDAOImpl dao = new StreamUserDAOImpl("160.40.50.242", "Malaysia", "StreamUsers");
+    	StreamUserDAOImpl dao = new StreamUserDAOImpl("ip", db, collection);
 		StreamUser su = dao.getStreamUser(id);
 		return su;
     }
@@ -124,12 +117,12 @@ public class UserFeaturesExtractor {
      * @return UserFeatures userFeat the features extracted
      */
     public static UserFeatures userFeatureExtractionMedia(MediaItem item){
+    	
     	UserFeatures userFeat = new UserFeatures();
     	
     	String id = item.getUserId().replace("Twitter#", "");
     	
     	StreamUser su = getStreamUser(id);
-    	
     	userFeat = extractUserFeaturesMedia(su, item.getId());
     	
     	return userFeat;
@@ -149,8 +142,8 @@ public class UserFeaturesExtractor {
     		UserFeatures userFeatures = new UserFeatures();
     		
     		String id = listMediaItems.get(i).getUserId().replace("Twitter#", "");
-    		StreamUser su = getStreamUser(id);
     		
+    		StreamUser su = getStreamUser(id);
     		userFeatures = extractUserFeaturesMedia(su,listMediaItems.get(i).getId());
     		
     		listUserFeat.add(userFeatures);
