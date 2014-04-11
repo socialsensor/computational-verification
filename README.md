@@ -22,7 +22,7 @@ Part I
 
 ###Classifying tweets using the models trained on our data###
 
-Each tweet corresponds to a `MediaItem` object. In order to store and access the tweet(s), we use the mongodb. Here are the steps for classifying a single tweet or a list of them:
+Each tweet corresponds to a `MediaItem` object. In order to store and access the tweet(s), we currently support [MongoDB](http://www.mongodb.org/) storage. Here are the steps for classifying a single tweet or a list of them:
 
 1. Get access to the mongodb where the MediaItems are stored.
 
@@ -116,3 +116,13 @@ To extract User features, you should use the `userFeatureExtractionMedia(item)` 
 ###Extracting Total features (Item & User features merged)###
 The `TotalFeatureExtractor` class implements the Total feature extraction.
 To extract Total features, you should use the `featureExtractionMedia(item)` function for a MediaItem or the  `featureExtractionMedia(listMediaItems)` for a list of MediaItems. This function combines the above two functions for Item and User feature extraction and produces the Total features.
+
+Additional information
+------------------------
+###Project dependencies###
+The computational-verification project is dependent on two SocialSensor projects:
+* [Socialsensor-framework-common](https://github.com/socialsensor/socialsensor-framework-common) : This project contains main classes and interfaces to be used by other SocialSensor projects.
+* [Socialsensor-framework-client](https://github.com/socialsensor/socialsensor-framework-client) : The wrappers for handling information in/from the supported MongoDB database.
+
+###Contact information###
+For further details, contact Symeon Papadopoulos (papadop@iti.gr) or Christina Boididou (boididou@iti.gr).
