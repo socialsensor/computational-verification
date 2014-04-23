@@ -53,8 +53,9 @@ public class TotalFeaturesExtractor {
      * Function that performs Item and User feature extraction of a MediaItem
      * @param listMediaItems the list of MediaItems need to be extracted
      * @return TotalFeatures list of the features extracted
+     * @throws Exception 
      */
-    public static List<TotalFeatures> featureExtractionMedia(List<MediaItem> listMediaItems) {
+    public static List<TotalFeatures> featureExtractionMedia(List<MediaItem> listMediaItems) throws Exception {
 
 		//extract features of the items
 		List<ItemFeatures> itemFeatures = ItemFeaturesExtractor.featureExtractionMedia(listMediaItems);
@@ -76,8 +77,9 @@ public class TotalFeaturesExtractor {
      * Function that performs Item and User feature extraction of a MediaItem
      * @param listMediaItems the list of MediaItems need to be extracted
      * @return TotalFeatures list of the features extracted
+     * @throws Exception 
      */
-    public static TotalFeatures featureExtractionMedia(MediaItem item) {
+    public static TotalFeatures featureExtractionMedia(MediaItem item) throws Exception {
     	
     	
 		//extract item features of the MediaItem

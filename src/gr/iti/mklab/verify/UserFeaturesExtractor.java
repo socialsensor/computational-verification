@@ -103,8 +103,9 @@ public class UserFeaturesExtractor {
      * Function that returns the StreamUser associated to the MediaItem
      * @param id the StreamUser id 
      * @return the StreamUser that has the specified id
+     * @throws Exception 
      */
-    public static StreamUser getStreamUser(String id){
+    public static StreamUser getStreamUser(String id) throws Exception{
     	
     	StreamUserDAOImpl dao = new StreamUserDAOImpl("ip", db, collection);
 		StreamUser su = dao.getStreamUser(id);
@@ -115,8 +116,9 @@ public class UserFeaturesExtractor {
      * Function that organizes the UserFeature extraction of a MediaItem
      * @param item from which the features need to be extracted
      * @return UserFeatures userFeat the features extracted
+     * @throws Exception 
      */
-    public static UserFeatures userFeatureExtractionMedia(MediaItem item){
+    public static UserFeatures userFeatureExtractionMedia(MediaItem item) throws Exception{
     	
     	UserFeatures userFeat = new UserFeatures();
     	
@@ -132,8 +134,9 @@ public class UserFeaturesExtractor {
      * Function that organizes the UserFeature extraction of a specified list of MediaItems
      * @param listMediaItems list of MediaItems need to be extracted
      * @return List of UserFeatures of the MediaItems
+     * @throws Exception 
      */
-    public static List<UserFeatures> userFeatureExtractionMedia(List<MediaItem> listMediaItems){
+    public static List<UserFeatures> userFeatureExtractionMedia(List<MediaItem> listMediaItems) throws Exception{
     	
     	List<UserFeatures> listUserFeat = new ArrayList<UserFeatures>();
     	

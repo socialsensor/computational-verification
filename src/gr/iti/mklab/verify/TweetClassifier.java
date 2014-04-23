@@ -8,6 +8,7 @@ import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.Instances;
 import context.arch.discoverer.query.ClassifierWrapper;
+import eu.socialsensor.framework.client.dao.StreamUserDAO;
 import eu.socialsensor.framework.client.dao.impl.MediaItemDAOImpl;
 import eu.socialsensor.framework.common.domain.MediaItem;
 
@@ -456,8 +457,9 @@ public class TweetClassifier {
 	/**
 	 * Auxiliary function to organize the cross validation process
 	 * Calls the appropriate crossValidate method depending on the features (Item, User or Total) 
+	 * @throws Exception 
 	 */
-	public static void performCrossValidationExample(){
+	public static void performCrossValidationExample() throws Exception{
 		
 		//get fake items
 		MediaItemDAOImpl daof = new MediaItemDAOImpl("ip", "dbname", "collectionname");
@@ -476,7 +478,7 @@ public class TweetClassifier {
 		}
 	}
 	
-	public static void performClassificationExample(){
+	public static void performClassificationExample() throws Exception{
 		
 		//get fake items
 		MediaItemDAOImpl daof = new MediaItemDAOImpl("ip", "dbname", "collectionname");
@@ -530,15 +532,16 @@ public class TweetClassifier {
 		
 		
 		//get the MediaItem from mongodb 
-		MediaItemDAOImpl dao3 = new MediaItemDAOImpl("ip", "dbname", "collectionname");
-		MediaItem item = dao3.getMediaItem("Twitter#445854762949677056");
+		MediaItemDAOImpl dao3 = new MediaItemDAOImpl("160.40.50.242", "Malaysia", "MediaItems");
+		MediaItem item = dao3.getMediaItem("Twitter#452083693780094976");
 		
 		//Classification by using Item(Content) features
 		System.out.println(" === Classification using Item(Content) Features === ");
 		verif = tweetClassificationbyMediaItem(item);
 		printVerificationResults(verif);
 		
-		//Classification by using User features
+		
+		/*//Classification by using User features
 		System.out.println(" === Classification using User Features === ");
 		verif = tweetClassificationbyUserMedia(item);
 		printVerificationResults(verif);
@@ -549,7 +552,7 @@ public class TweetClassifier {
 		printVerificationResults(verif);
 		
 		
-		/* === Classification for a list of MediaItem === */
+		 === Classification for a list of MediaItem === 
 		
 		//define the list of verification objects
 		List<ImageVerificationResult> verifs = new ArrayList<ImageVerificationResult>();
@@ -580,7 +583,7 @@ public class TweetClassifier {
 		
 		for (int i=0;i<listMedia2.size();i++){
 			printVerificationResults(verifs.get(i));
-		}
+		}*/
 	}
 	
 	/**
@@ -591,8 +594,8 @@ public class TweetClassifier {
 	public static void main(String[] args) throws Exception {
 		
 		ItemVerificationExample();
-		performCrossValidationExample();
-		performClassificationExample();
+		//performCrossValidationExample();
+		//performClassificationExample();
 		
 	}
 
