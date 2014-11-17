@@ -19,6 +19,11 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import eu.socialsensor.framework.common.domain.MediaItem;
+import gr.iti.mklab.extractfeatures.ItemFeaturesAnnotation;
+import gr.iti.mklab.extractfeatures.TotalFeatures;
+import gr.iti.mklab.extractfeatures.TotalFeaturesExtractor;
+import gr.iti.mklab.extractfeatures.UserFeaturesExtractor;
+import gr.iti.mklab.utils.Vars;
 
 /**
  * Class to organize the Total classification using Item and User features 
@@ -114,7 +119,7 @@ public class TotalClassifier {
 			Instance inst  = createInstance(list.get(i));
 
 			for (int j=0;j<itemFeaturesAnnot.size();j++){
-				if ((list.get(i).id).equals(itemFeaturesAnnot.get(j).id)){
+				if ((list.get(i).getId()).equals(itemFeaturesAnnot.get(j).getId())){
 					index = j;				
 				}
 			}
@@ -257,7 +262,7 @@ public class TotalClassifier {
 			
 			
 			for (int j=0;j<itemFeaturesAnnot.size();j++){
-				if ((list.get(i).id).equals(itemFeaturesAnnot.get(j).id)){
+				if ((list.get(i).getId()).equals(itemFeaturesAnnot.get(j).getId())){
 					index = j;
 				}
 			}
@@ -307,16 +312,23 @@ public class TotalClassifier {
 		List<ItemFeaturesAnnotation> itemFeaturesAnnot2 = new ArrayList<ItemFeaturesAnnotation>();
 		
 		//features
-		UserFeaturesExtractor.db = "Sochi";
-		UserFeaturesExtractor.collection = "UsersFake";
+		UserFeaturesExtractor ufe = new UserFeaturesExtractor();
+		
+		UserFeaturesExtractor.setDb("Sochi");
+		UserFeaturesExtractor.setCollection("UsersFake");
 		System.out.println("Extracting features for training fake Items...");
+		
 		List<TotalFeatures> totFeaturesFakeTrain = TotalFeaturesExtractor.featureExtractionMedia(itemsFakeTrain);
 		System.out.println("Extracting features for testing fake Items...");
+		
 		List<TotalFeatures> totFeaturesFakeTest = TotalFeaturesExtractor.featureExtractionMedia(itemsFakeTest);
 		System.out.println("Extracting features for training real Items...");
-		UserFeaturesExtractor.collection = "UsersReal";
+		
+		UserFeaturesExtractor.setCollection("UsersReal");
+		
 		List<TotalFeatures> totFeaturesRealTrain = TotalFeaturesExtractor.featureExtractionMedia(itemsRealTrain);
 		System.out.println("Extracting features for testing real Items...");
+		
 		List<TotalFeatures> totFeaturesRealTest = TotalFeaturesExtractor.featureExtractionMedia(itemsRealTest);
 		
 		
@@ -390,11 +402,11 @@ public class TotalClassifier {
 		//define the list of annotations of the items trained
 		List<ItemFeaturesAnnotation> itemFeaturesAnnot = new ArrayList<ItemFeaturesAnnotation>();
 		
-		UserFeaturesExtractor.db = "Sochi";
-		UserFeaturesExtractor.collection = "UsersFake";
+		UserFeaturesExtractor.setDb("Sochi");
+		UserFeaturesExtractor.setCollection("UsersFake");
 		List<TotalFeatures> totFeaturesFake = TotalFeaturesExtractor.featureExtractionMedia(itemsFake);
 		
-		UserFeaturesExtractor.collection = "UsersReal";
+		UserFeaturesExtractor.setCollection("UsersReal");
 		List<TotalFeatures> totFeaturesReal = TotalFeaturesExtractor.featureExtractionMedia(itemsReal);
 		
 		/*--------FAKE ITEMS--------------*/

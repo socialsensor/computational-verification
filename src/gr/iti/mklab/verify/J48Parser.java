@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -41,7 +42,7 @@ public class J48Parser {
 		atts=attsList;
 		
 		//define the tree details
-		Reader treeDot = new StringReader(cModel.graph());
+		Reader treeDot = new StringReader(((J48) cModel).graph());
 		TreeBuild treeBuild = new TreeBuild();
 		Node treeRoot = treeBuild.create(treeDot);
 		

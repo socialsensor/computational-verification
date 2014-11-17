@@ -46,6 +46,11 @@
    			<version>0.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>eu.socialsensor</groupId>
+ 			 <artifactId>geo-util</artifactId>
+ 			 <version>0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>me.champeau.jlangdetect</groupId>
 			<artifactId>jlangdetect-extra</artifactId>
 			<version>0.3</version>
@@ -55,7 +60,36 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.7.2</version>
 		</dependency>
+		
+		
+		<!-- stemmer -->
+		<dependency>
+			<groupId>libstemmer_java</groupId>
+ 			<artifactId>libstemmer_java</artifactId>
+  			<version>0.0.1-SNAPSHOT</version>
+ 		 </dependency>
+		
+		<!-- stanford nlp  -->
+		<dependency>
+			<groupId>edu.stanford.nlp</groupId>
+			<artifactId>stanford-corenlp</artifactId>
+			<version>3.3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>edu.stanford.nlp</groupId>
+			<artifactId>stanford-corenlp</artifactId>
+			<version>3.3.1</version>
+			<classifier>models</classifier>
+		</dependency>
+		
+		<!-- json -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+		<version>20140107</version>
+	</dependency>
 	</dependencies>
+	
 	<repositories>
 		<repository>
 			<id>jlangdetect-googlecode</id>

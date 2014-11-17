@@ -1,16 +1,23 @@
 package gr.iti.mklab.verify;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.Instances;
-import context.arch.discoverer.query.ClassifierWrapper;
-import eu.socialsensor.framework.client.dao.StreamUserDAO;
 import eu.socialsensor.framework.client.dao.impl.MediaItemDAOImpl;
 import eu.socialsensor.framework.common.domain.MediaItem;
+import gr.iti.mklab.extractfeatures.ItemFeatures;
+import gr.iti.mklab.extractfeatures.ItemFeaturesAnnotation;
+import gr.iti.mklab.extractfeatures.ItemFeaturesExtractor;
+import gr.iti.mklab.extractfeatures.TotalFeatures;
+import gr.iti.mklab.extractfeatures.TotalFeaturesExtractor;
+import gr.iti.mklab.extractfeatures.UserFeatures;
+import gr.iti.mklab.extractfeatures.UserFeaturesAnnotation;
+import gr.iti.mklab.extractfeatures.UserFeaturesExtractor;
 
 /**
  * General main class used to perform the Item classification based on specified features and present the result 
@@ -23,8 +30,10 @@ public class TweetClassifier {
 	 * and computes the tree condition path of the classification.
 	 * @param listItem the list of MediaItems need to be classified
 	 * @return ImageVerification list of the verification results(flag and description) of the classification
+	 * @throws IOException 
+	 * @throws MalformedURLException 
 	 */
-	public static List<ImageVerificationResult> tweetClassificationbyMediaItem(List<MediaItem> listItem){
+	public static List<ImageVerificationResult> tweetClassificationbyMediaItem(List<MediaItem> listItem) throws MalformedURLException, IOException{
 		
 		Instances testSet;   
 			
@@ -79,7 +88,7 @@ public class TweetClassifier {
 			flagsReliability = ItemClassifier.classifyItems(testSet);	
 			probabilities	 = ItemClassifier.findProbDistribution(testSet);
 			
-			J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_ITEM);
+			//J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_ITEM);
 			
 			//check if features computed for this item;if yes find the tree path, otherwise do nothing.
 			//this way we count also items for which features could not be computed 
@@ -89,8 +98,8 @@ public class TweetClassifier {
 						
 						verifyResults.get(i).setFlag(flagsReliability[j]);
 						verifyResults.get(i).setFakePercentage(probabilities[j]);
-						String result = J48Parser.findTreePath(testSet.get(j),ItemClassifier.getFvAttributes(),cModel);
-						verifyResults.get(i).setExplanation(result);
+						//String result = J48Parser.findTreePath(testSet.get(j),ItemClassifier.getFvAttributes(),cModel);
+						//verifyResults.get(i).setExplanation(result);
 						
 					}
 				}
@@ -108,8 +117,10 @@ public class TweetClassifier {
 	 * and computes the tree condition path of the classification.
 	 * @param item the MediaItem needs to be classified
 	 * @return ImageVerificationResult the result (flag and description) of the classification
+	 * @throws IOException 
+	 * @throws MalformedURLException 
 	 */
-	public static ImageVerificationResult tweetClassificationbyMediaItem(MediaItem item){
+	public static ImageVerificationResult tweetClassificationbyMediaItem(MediaItem item) throws MalformedURLException, IOException{
 		
 		Instances testSet;   
 			
@@ -147,7 +158,7 @@ public class TweetClassifier {
 			flagsReliability = ItemClassifier.classifyItems(testSet);	
 			probabilities	 = ItemClassifier.findProbDistribution(testSet);
 			
-			J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_ITEM);
+			//J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_ITEM_sample);
 			
 			//check if features computed for this item;if yes find the tree path, otherwise do nothing.
 			//this way we count also items for which features could not be computed 
@@ -156,8 +167,9 @@ public class TweetClassifier {
 				
 				verifyResult.setFlag(flagsReliability[0]);
 				verifyResult.setFakePercentage(probabilities[0]);
-				String result = J48Parser.findTreePath(testSet.get(0),ItemClassifier.getFvAttributes(),cModel);
-				verifyResult.setExplanation(result);
+				
+				//String result = J48Parser.findTreePath(testSet.get(0),ItemClassifier.getFvAttributes(),cModel);
+				//verifyResult.setExplanation(result);
 				
 			}
 			
@@ -184,30 +196,35 @@ public class TweetClassifier {
 		double[] probabilities;
 		List<ImageVerificationResult> verifyResults = new ArrayList<ImageVerificationResult>();
 		
+		List<UserFeaturesAnnotation> userFeaturesAnnot = new ArrayList<UserFeaturesAnnotation>();
+		UserFeaturesAnnotation itemAnnot = new UserFeaturesAnnotation();
+		
 		//create UserFeatures list to keep the features extracted
 		List<UserFeatures> listFeatures = new ArrayList<UserFeatures>();
 		
 		listFeatures = UserFeaturesExtractor.userFeatureExtractionMedia(listMediaItems);
-		
-		//annotate items
-		List<UserFeaturesAnnotation> userFeaturesAnnot = new ArrayList<UserFeaturesAnnotation>();
-		for (int i=0;i<listFeatures.size();i++){
-			UserFeaturesAnnotation itemAnnot = new UserFeaturesAnnotation();
-			itemAnnot.setUsername(listFeatures.get(i).getUsername());
-			itemAnnot.reliability = "real";
-			userFeaturesAnnot.add(itemAnnot);
+		try {
+			//annotate items
+			
+			for (int i=0;i<listFeatures.size();i++){
+				itemAnnot.setUsername(listFeatures.get(i).getUsername());
+				itemAnnot.setReliability("real");
+				userFeaturesAnnot.add(itemAnnot);
+			}
+			
+			//call UserClassifier method to declare the attributes used in classification and print them
+			if (UserClassifier.getFvAttributes().size()==0){
+				UserClassifier.declareAttributes();
+			}
+			System.out.println("Attributes ");
+			for (Attribute att:UserClassifier.getFvAttributes()){
+				System.out.print(att.name()+",");
+			}
+			System.out.println();
 		}
-		
-		//call UserClassifier method to declare the attributes used in classification and print them
-		if (UserClassifier.getFvAttributes().size()==0){
-			UserClassifier.declareAttributes();
+		catch(Exception e) {
+			System.out.println("Features not created.");
 		}
-		System.out.println("Attributes ");
-		for (Attribute att:UserClassifier.getFvAttributes()){
-			System.out.print(att.name()+",");
-		}
-		System.out.println();
-		
 		//create testing set 
 		testSet = UserClassifier.createTestingSet(listFeatures,userFeaturesAnnot);
 		for (int i=0;i<listMediaItems.size();i++){
@@ -221,7 +238,7 @@ public class TweetClassifier {
 			flagsReliability = UserClassifier.classifyItems(testSet);
 			probabilities	 = UserClassifier.findProbDistribution(testSet);
 			
-			J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_USER);
+			//J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_USER);
 			
 			//check if features computed for this item;if yes find the tree path, otherwise do nothing.
 			//this way we count also items for which features could not be computed 
@@ -231,8 +248,8 @@ public class TweetClassifier {
 					if (listMediaItems.get(i).getId().equals(listFeatures.get(j).getId())){
 						
 						verifyResults.get(i).setFlag(flagsReliability[j]);
-						String result = J48Parser.findTreePath(testSet.get(j),UserClassifier.getFvAttributes(),cModel);
-						verifyResults.get(i).setExplanation(result);
+						//String result = J48Parser.findTreePath(testSet.get(j),UserClassifier.getFvAttributes(),cModel);
+						//verifyResults.get(i).setExplanation(result);
 						verifyResults.get(i).setFakePercentage(probabilities[j]);
 						
 					}
@@ -258,40 +275,43 @@ public class TweetClassifier {
 		
 		boolean[] flagsReliability;
 		double[] probabilities;
-		
+		UserFeaturesAnnotation itemAnnot = new UserFeaturesAnnotation();;
 		
 		//create UserFeatures list to keep the features extracted
-		UserFeatures listFeatures = new UserFeatures();
+		UserFeatures listFeatures = null;
 		
 		listFeatures = UserFeaturesExtractor.userFeatureExtractionMedia(item);
-		
-		//annotate items
-		UserFeaturesAnnotation itemAnnot = new UserFeaturesAnnotation();
-		itemAnnot.setUsername(listFeatures.getUsername());
-		itemAnnot.reliability = "real";
-
-		//call UserClassifier method to declare the attributes used in classification and print them
-		if (UserClassifier.getFvAttributes().size()==0){
-			UserClassifier.declareAttributes();
+		try {
+			//annotate items
+			itemAnnot.setUsername(listFeatures.getUsername());
+			itemAnnot.setReliability("real");
+	
+			//call UserClassifier method to declare the attributes used in classification and print them
+			if (UserClassifier.getFvAttributes().size()==0){
+				UserClassifier.declareAttributes();
+			}
+			System.out.println("Attributes ");
+			for (Attribute att:UserClassifier.getFvAttributes()){
+				System.out.print(att.name()+",");
+			}
+			System.out.println();
 		}
-		System.out.println("Attributes ");
-		for (Attribute att:UserClassifier.getFvAttributes()){
-			System.out.print(att.name()+",");
-		}
-		System.out.println();
+		catch(Exception e) {
+			System.out.println("Features not created.");
+		}	
+			//create testing set 
+			testSet = UserClassifier.createTestingSet(listFeatures,itemAnnot);
+			
+			ImageVerificationResult verifyResult = new ImageVerificationResult();
+			verifyResult.setId(item.getId());
 		
-		//create testing set 
-		testSet = UserClassifier.createTestingSet(listFeatures,itemAnnot);
-		
-		ImageVerificationResult verifyResult = new ImageVerificationResult();
-		verifyResult.setId(item.getId());
 		
 		//call methods to classify items and compute the J48 tree path
 		try {
 			flagsReliability = UserClassifier.classifyItems(testSet);
 			probabilities	 = UserClassifier.findProbDistribution(testSet);
 			
-			J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_USER);
+			//J48 cModel =  (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_USER_sample);
 			
 			//check if features computed for this item;if yes find the tree path, otherwise do nothing.
 			//this way we count also items for which features could not be computed 
@@ -299,8 +319,8 @@ public class TweetClassifier {
 			if (item.getId().equals(listFeatures.getId())){
 						
 				verifyResult.setFlag(flagsReliability[0]);
-				String result = J48Parser.findTreePath(testSet.get(0),UserClassifier.getFvAttributes(),cModel);
-				verifyResult.setExplanation(result);
+				//String result = J48Parser.findTreePath(testSet.get(0),UserClassifier.getFvAttributes(),cModel);
+				//verifyResult.setExplanation(result);
 				verifyResult.setFakePercentage(probabilities[0]);
 				
 			}
@@ -354,7 +374,7 @@ public class TweetClassifier {
 			flagsReliability = TotalClassifier.classifyItems(testSet);
 			probabilities	 = TotalClassifier.findProbDistribution(testSet);
 			
-			J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_TOTAL);	
+			//J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_TOTAL);	
 			
 			//check if features computed for this item;if yes find the tree path, otherwise do nothing.
 			//this way we count also items for which features could not be computed 
@@ -363,8 +383,8 @@ public class TweetClassifier {
 					if (listItem.get(i).getId().equals(listFeatures.get(j).getId())){
 						
 						verifyResults.get(i).setFlag(flagsReliability[j]);
-						String result = J48Parser.findTreePath(testSet.get(j),TotalClassifier.getFvAttributes(),cModel);
-						verifyResults.get(i).setExplanation(result);
+						//String result = J48Parser.findTreePath(testSet.get(j),TotalClassifier.getFvAttributes(),cModel);
+						//verifyResults.get(i).setExplanation(result);
 						verifyResults.get(i).setFakePercentage(probabilities[j]);
 						
 					}
@@ -411,7 +431,7 @@ public class TweetClassifier {
 			flagsReliability = TotalClassifier.classifyItems(testSet);
 			probabilities	 = TotalClassifier.findProbDistribution(testSet);
 			
-			J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_TOTAL);	
+			//J48 cModel = (J48) ClassifierWrapper.loadClassifier(Vars.MODEL_PATH_TOTAL);	
 			
 			//check if features computed for this item;if yes find the tree path, otherwise do nothing.
 			//this way we count also items for which features could not be computed 
@@ -419,8 +439,8 @@ public class TweetClassifier {
 			if (item.getId().equals(listFeatures.getId())){
 				
 				verifyResult.setFlag(flagsReliability[0]);
-				String result = J48Parser.findTreePath(testSet.get(0),TotalClassifier.getFvAttributes(),cModel);
-				verifyResult.setExplanation(result);
+				//String result = J48Parser.findTreePath(testSet.get(0),TotalClassifier.getFvAttributes(),cModel);
+				//verifyResult.setExplanation(result);
 				verifyResult.setFakePercentage(probabilities[0]);
 				
 			}
@@ -439,7 +459,7 @@ public class TweetClassifier {
 		
 		System.out.println("MediaItem id: "+verif.id);
 		
-		if (verif.getExplanation()!=null){
+		if (verif != null){
 			if (verif.getFlag()) flag="fake";
 			else flag="real";
 			System.out.println("Classified as "+flag);
@@ -512,9 +532,11 @@ public class TweetClassifier {
 		}
 		
 		try {
+			
 			ItemClassifier.doClassification(itemsFakeTrain, itemsFakeTest, itemsRealTrain, itemsRealTest);
 			UserClassifier.doClassification(itemsFakeTrain, itemsFakeTest, itemsRealTrain, itemsRealTest);
 			TotalClassifier.doClassification(itemsFakeTrain, itemsFakeTest, itemsRealTrain, itemsRealTest);	
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -533,7 +555,7 @@ public class TweetClassifier {
 		
 		//get the MediaItem from mongodb 
 		MediaItemDAOImpl dao3 = new MediaItemDAOImpl("160.40.50.242", "Malaysia", "MediaItems");
-		MediaItem item = dao3.getMediaItem("Twitter#452083693780094976");
+		MediaItem item = dao3.getMediaItem("Twitter#452093315014348800");
 		
 		//Classification by using Item(Content) features
 		System.out.println(" === Classification using Item(Content) Features === ");
@@ -541,18 +563,26 @@ public class TweetClassifier {
 		printVerificationResults(verif);
 		
 		
-		/*//Classification by using User features
-		System.out.println(" === Classification using User Features === ");
-		verif = tweetClassificationbyUserMedia(item);
-		printVerificationResults(verif);
+		//Classification by using User features
+		/*System.out.println(" === Classification using User Features === ");
+		try {
+			verif = tweetClassificationbyUserMedia(item);
+			printVerificationResults(verif);
+		}
+		catch(Exception e){
+			System.out.println("Item classification could not be performed!");
+		}*/
 		
+		
+		/** Classification with total features deprecated! Use agreement-based retraining method instead..**/
 		//Classification by using Total features
-		System.out.println(" === Classification using Total Features === ");
+		
+		/*System.out.println(" === Classification using Total Features === ");
 		verif = tweetClassificationTotalMedia(item);
-		printVerificationResults(verif);
+		printVerificationResults(verif);*/
 		
 		
-		 === Classification for a list of MediaItem === 
+		/* === Classification for a list of MediaItem === 
 		
 		//define the list of verification objects
 		List<ImageVerificationResult> verifs = new ArrayList<ImageVerificationResult>();

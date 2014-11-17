@@ -1,11 +1,16 @@
 package gr.iti.mklab.verify;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 import eu.socialsensor.framework.common.domain.MediaItem;
+import gr.iti.mklab.extractfeatures.ItemFeatures;
+import gr.iti.mklab.extractfeatures.ItemFeaturesAnnotation;
+import gr.iti.mklab.extractfeatures.ItemFeaturesExtractor;
+import gr.iti.mklab.utils.Vars;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.evaluation.output.prediction.PlainText;
@@ -29,6 +34,7 @@ import weka.core.Instances;
 public class ItemClassifier {
 	
 	static ArrayList<Attribute> fvAttributes = new ArrayList<Attribute>();
+	private static ClassifierAccuracy clAcc = new ClassifierAccuracy();
 	
 	public static ArrayList<Attribute> getFvAttributes(){
 		return fvAttributes;
@@ -38,68 +44,95 @@ public class ItemClassifier {
 	 * @return List of attributes needed for the classification
 	 */
 	public static List<Attribute> declareAttributes(){
-		//declare numeric attributes
-		Attribute ItemLength 			= new Attribute("ItemLength");
-		Attribute numWords 				= new Attribute("numWords");
-		Attribute numQuestionMark 		= new Attribute("numQuestionMark");
-		Attribute numExclamationMark 	= new Attribute("numExclamationMark");
-		Attribute numUppercaseChars 	= new Attribute("numUppercaseChars");
-		Attribute numPosSentiWords 		= new Attribute("numPosSentiWords");
-		Attribute numNegSentiWords 		= new Attribute("numNegSentiWords");
-		Attribute numMentions 			= new Attribute("numMentions");
-		Attribute numHashtags 			= new Attribute("numHashtags");
-		Attribute numURLs 				= new Attribute("numURLs");
-		Attribute retweetCount 			= new Attribute("retweetCount");
-		
-		//declare nominal attributes
+		Attribute ItemLength = new Attribute("ItemLength");
+		Attribute numWords = new Attribute("numWords");
+		Attribute numQuestionMark = new Attribute("numQuestionMark");
+		Attribute numExclamationMark = new Attribute("numExclamationMark");
+		Attribute numUppercaseChars = new Attribute("numUppercaseChars");
+		Attribute numPosSentiWords = new Attribute("numPosSentiWords");
+		Attribute numNegSentiWords = new Attribute("numNegSentiWords");
+		Attribute numMentions = new Attribute("numMentions");
+		Attribute numHashtags = new Attribute("numHashtags");
+		Attribute numURLs = new Attribute("numURLs");
+		Attribute retweetCount = new Attribute("retweetCount");
+		Attribute numSlangs = new Attribute("numSlangs");
+		Attribute numNouns = new Attribute("numNouns");
+		Attribute wotTrust = new Attribute("wotTrust");
+		// Attribute wotSafe = new Attribute("wotSafe");
+		Attribute readability = new Attribute("readability");
+
+		// declare nominal attributes
 		List<String> fvnominal1 = new ArrayList<String>(2);
 		fvnominal1.add("true");
 		fvnominal1.add("false");
-		Attribute containsQuestionMark = new Attribute("containsQuestionMark",fvnominal1);
-		
+		Attribute containsQuestionMark = new Attribute("containsQuestionMark",	fvnominal1);
+
 		List<String> fvnominal2 = new ArrayList<String>(2);
 		fvnominal2.add("true");
 		fvnominal2.add("false");
-		Attribute containsExclamationMark = new Attribute("containsExclamationMark",fvnominal2);
-		
+		Attribute containsExclamationMark = new Attribute(
+				"containsExclamationMark", fvnominal2);
+
 		List<String> fvnominal3 = new ArrayList<String>(2);
 		fvnominal3.add("true");
 		fvnominal3.add("false");
-		Attribute containsHappyEmo = new Attribute("containsHappyEmo",fvnominal3);
-		
+		Attribute containsHappyEmo = new Attribute("containsHappyEmo",
+				fvnominal3);
+
 		List<String> fvnominal4 = new ArrayList<String>(2);
 		fvnominal4.add("true");
 		fvnominal4.add("false");
-		Attribute containsSadEmo = new Attribute("containsSadEmo",fvnominal4);
-		
+		Attribute containsSadEmo = new Attribute("containsSadEmo", fvnominal4);
+
 		List<String> fvnominal5 = new ArrayList<String>(2);
 		fvnominal5.add("true");
 		fvnominal5.add("false");
-		Attribute containsFirstOrderPron = new Attribute("containsFirstOrderPron",fvnominal5);
-		
+		Attribute containsFirstOrderPron = new Attribute("containsFirstOrderPron", fvnominal5);
+
 		List<String> fvnominal6 = new ArrayList<String>(2);
 		fvnominal6.add("true");
 		fvnominal6.add("false");
-		Attribute containsSecondOrderPron = new Attribute("containsSecondOrderPron",fvnominal6);
-		
+		Attribute containsSecondOrderPron = new Attribute("containsSecondOrderPron", fvnominal6);
+
 		List<String> fvnominal7 = new ArrayList<String>(2);
 		fvnominal7.add("true");
 		fvnominal7.add("false");
-		Attribute containsThirdOrderPron = new Attribute("containsThirdOrderPron",fvnominal7);
+		Attribute containsThirdOrderPron = new Attribute(
+				"containsThirdOrderPron", fvnominal7);
+
+		List<String> fvnominal8 = new ArrayList<String>(2);
+		fvnominal8.add("true");
+		fvnominal8.add("false");
+		Attribute hasColon = new Attribute("hasColon", fvnominal8);
+
+		List<String> fvnominal9 = new ArrayList<String>(2);
+		fvnominal9.add("true");
+		fvnominal9.add("false");
+		Attribute hasPlease = new Attribute("hasPlease", fvnominal9);
+
+		List<String> fvnominal10 = new ArrayList<String>(2);
+		fvnominal10.add("true");
+		fvnominal10.add("false");
+		Attribute hasExternalLink = new Attribute("hasExternalLink",
+				fvnominal10);
+
+		List<String> fvnominal11 = null;
+		Attribute id = new Attribute("id",fvnominal11);
 		
 		List<String> fvClass = new ArrayList<String>(2);
 		fvClass.add("real");
 		fvClass.add("fake");
-		Attribute ClassAttribute = new Attribute("theClass",fvClass);
+		Attribute ClassAttribute = new Attribute("theClass", fvClass);
+
+		// declare the feature vector
+		fvAttributes.add(id);
 		
-		
-		//declare the feature vector
 		fvAttributes.add(ItemLength);
 		fvAttributes.add(numWords);
 		fvAttributes.add(containsQuestionMark);
 		fvAttributes.add(containsExclamationMark);
-		fvAttributes.add(numQuestionMark);
-		fvAttributes.add(numExclamationMark);
+		fvAttributes.add(hasExternalLink);
+		fvAttributes.add(numNouns);
 		fvAttributes.add(containsHappyEmo);
 		fvAttributes.add(containsSadEmo);
 		fvAttributes.add(containsFirstOrderPron);
@@ -112,8 +145,23 @@ public class ItemClassifier {
 		fvAttributes.add(numHashtags);
 		fvAttributes.add(numURLs);
 		fvAttributes.add(retweetCount);
-		fvAttributes.add(ClassAttribute);
+		fvAttributes.add(numSlangs);
+		fvAttributes.add(hasColon);
+		fvAttributes.add(hasPlease);
+		fvAttributes.add(wotTrust);
+		fvAttributes.add(numQuestionMark);
+		fvAttributes.add(numExclamationMark);
+		fvAttributes.add(readability);
 		
+		/*fvAttributes.add(numPosSentiWords);
+		fvAttributes.add(numNegSentiWords);
+		fvAttributes.add(ItemLength);
+		fvAttributes.add(wotTrust);
+		fvAttributes.add(hasExternalLink);
+		fvAttributes.add(readability);*/
+
+		fvAttributes.add(ClassAttribute);
+
 		return fvAttributes;
 	}
 	
@@ -124,26 +172,88 @@ public class ItemClassifier {
 	public static Instance createInstance(ItemFeatures listItemFeatures){
 		
 		Instance inst = new DenseInstance(fvAttributes.size());
+		String id = listItemFeatures.getId().replaceAll("[^\\d.]", "");
+		inst.setValue((Attribute) fvAttributes.get(0), id);
 		
-		inst.setValue((Attribute)fvAttributes.get(0), listItemFeatures.getItemLength());  
-		inst.setValue((Attribute)fvAttributes.get(1), listItemFeatures.getNumWords());
-		inst.setValue((Attribute)fvAttributes.get(2), String.valueOf(listItemFeatures.getContainsQuestionMark()));
-		inst.setValue((Attribute)fvAttributes.get(3), String.valueOf(listItemFeatures.getContainsExclamationMark()));
-		inst.setValue((Attribute)fvAttributes.get(4), listItemFeatures.getnumQuestionMark());
-		inst.setValue((Attribute)fvAttributes.get(5), listItemFeatures.getnumExclamationMark());
-		inst.setValue((Attribute)fvAttributes.get(6), String.valueOf(listItemFeatures.getContainsHappyEmo()));
-		inst.setValue((Attribute)fvAttributes.get(7), String.valueOf(listItemFeatures.getContainsSadEmo()));
-		inst.setValue((Attribute)fvAttributes.get(8), String.valueOf(listItemFeatures.getContainsFirstOrderPron()));
-		inst.setValue((Attribute)fvAttributes.get(9), String.valueOf(listItemFeatures.getContainsSecondOrderPron()));
-		inst.setValue((Attribute)fvAttributes.get(10), String.valueOf(listItemFeatures.getContainsThirdOrderPron()));
-		inst.setValue((Attribute)fvAttributes.get(11), listItemFeatures.getNumUppercaseChars());
-		inst.setValue((Attribute)fvAttributes.get(12), listItemFeatures.getNumPosSentiWords());
-		inst.setValue((Attribute)fvAttributes.get(13), listItemFeatures.getNumNegSentiWords());
-		inst.setValue((Attribute)fvAttributes.get(14), listItemFeatures.getNumMentions());
-		inst.setValue((Attribute)fvAttributes.get(15), listItemFeatures.getNumHashtags());
-		inst.setValue((Attribute)fvAttributes.get(16), listItemFeatures.getNumURLs());
-		inst.setValue((Attribute)fvAttributes.get(17), listItemFeatures.getRetweetCount());
+		inst.setValue((Attribute) fvAttributes.get(1),
+				listItemFeatures.getItemLength());
+		inst.setValue((Attribute) fvAttributes.get(2),
+				listItemFeatures.getNumWords());
+		inst.setValue((Attribute) fvAttributes.get(3),
+				String.valueOf(listItemFeatures.getContainsQuestionMark()));
 		
+		inst.setValue((Attribute) fvAttributes.get(4),
+				String.valueOf(listItemFeatures.getContainsExclamationMark()));
+		inst.setValue((Attribute) fvAttributes.get(5),
+				String.valueOf(listItemFeatures.getHasExternalLink()));
+		if (listItemFeatures.getNumNouns() != null) {
+			inst.setValue((Attribute) fvAttributes.get(6),
+					listItemFeatures.getNumNouns());
+		}
+		inst.setValue((Attribute) fvAttributes.get(7),
+				String.valueOf(listItemFeatures.getContainsHappyEmo()));
+		inst.setValue((Attribute) fvAttributes.get(8),
+				String.valueOf(listItemFeatures.getContainsSadEmo()));
+
+		if (listItemFeatures.getContainsFirstOrderPron() != null) {
+			inst.setValue((Attribute) fvAttributes.get(9), String
+					.valueOf(listItemFeatures.getContainsFirstOrderPron()));
+		}
+		if (listItemFeatures.getContainsSecondOrderPron() != null) {
+			inst.setValue((Attribute) fvAttributes.get(10), String
+					.valueOf(listItemFeatures.getContainsSecondOrderPron()));
+		}
+		if (listItemFeatures.getContainsThirdOrderPron() != null) {
+			inst.setValue((Attribute) fvAttributes.get(11), String
+					.valueOf(listItemFeatures.getContainsThirdOrderPron()));
+		}
+
+		inst.setValue((Attribute) fvAttributes.get(12),
+				listItemFeatures.getNumUppercaseChars());
+
+		if (listItemFeatures.getNumPosSentiWords() != null) {
+			inst.setValue((Attribute) fvAttributes.get(13),
+					listItemFeatures.getNumPosSentiWords());
+		}
+		if (listItemFeatures.getNumNegSentiWords() != null) {
+			inst.setValue((Attribute) fvAttributes.get(14),
+					listItemFeatures.getNumNegSentiWords());
+		}
+		inst.setValue((Attribute) fvAttributes.get(15),
+				listItemFeatures.getNumMentions());
+		inst.setValue((Attribute) fvAttributes.get(16),
+				listItemFeatures.getNumHashtags());
+		inst.setValue((Attribute) fvAttributes.get(17),
+				listItemFeatures.getNumURLs());
+		inst.setValue((Attribute) fvAttributes.get(18),
+				listItemFeatures.getRetweetCount());
+
+		if (listItemFeatures.getNumSlangs() != null) {
+			inst.setValue((Attribute) fvAttributes.get(19),
+					listItemFeatures.getNumSlangs());
+		}
+		inst.setValue((Attribute) fvAttributes.get(20),
+				String.valueOf(listItemFeatures.getHasColon()));
+		inst.setValue((Attribute) fvAttributes.get(21),
+				String.valueOf(listItemFeatures.getHasPlease()));
+
+		if (listItemFeatures.getWotTrust() != null) {
+			inst.setValue((Attribute) fvAttributes.get(22),
+					listItemFeatures.getWotTrust());
+			
+		}
+		inst.setValue((Attribute) fvAttributes.get(23),
+				listItemFeatures.getNumQuestionMark());
+		inst.setValue((Attribute) fvAttributes.get(24),
+				listItemFeatures.getNumExclamationMark());
+
+		if (listItemFeatures.getReadability() != null) {
+			inst.setValue((Attribute) fvAttributes.get(25),
+					listItemFeatures.getReadability());
+		}
+		
+		
+
 		return inst;
 	}
 	
@@ -517,5 +627,88 @@ public class ItemClassifier {
 		return probabilities;
 	}
 	
+	public static Instances formTrainingSet(List<MediaItem> itemsFake, List<MediaItem> itemsReal) throws Exception {
+		
+		
+		List<ItemFeatures> itemFeatsFake = ItemFeaturesExtractor.featureExtractionMedia(itemsFake);
+		System.out.println("itemFeatsFake "+itemFeatsFake.size());
+		List<ItemFeatures> itemFeatsReal = ItemFeaturesExtractor.featureExtractionMedia(itemsReal);
+		System.out.println("itemFeatsReal "+itemFeatsReal.size());
+		
+		Instances isTrainingSet = null;
+		// define the list of itemFeatures that are used for training
+		List<ItemFeatures> itemFeaturesTraining = new ArrayList<ItemFeatures>();
+		// define the list of annotations of the items trained
+		List<ItemFeaturesAnnotation> itemFeaturesAnnot = new ArrayList<ItemFeaturesAnnotation>();
+					
+		//fake
+		for (int i = 0; i < itemFeatsFake.size(); i++) {
+			ItemFeaturesAnnotation itemAnnot = new ItemFeaturesAnnotation();
+			itemAnnot.setId(itemFeatsFake.get(i).getId());
+			itemAnnot.setReliability("fake");
+			itemFeaturesAnnot.add(itemAnnot);
+			itemFeaturesTraining.add(itemFeatsFake.get(i));
+		}
+		
+		int sizefake = itemFeaturesTraining.size();
+		System.out.println("Size of fake training "+sizefake);
+		
+		//real
+		
+		for (int i = 0; i < itemFeatsReal.size(); i++) {
+			ItemFeaturesAnnotation itemAnnot = new ItemFeaturesAnnotation();
+			itemAnnot.setId(itemFeatsReal.get(i).getId());
+			itemAnnot.setReliability("real");
+			itemFeaturesAnnot.add(itemAnnot);
+			itemFeaturesTraining.add(itemFeatsReal.get(i));
+		}
+				
+		System.out.println("Size of real training "+(itemFeaturesTraining.size()-sizefake));
+		isTrainingSet = ItemClassifier.createTrainingSet(itemFeaturesTraining,itemFeaturesAnnot);
+		System.out.println("Total training size "+itemFeaturesTraining.size());
+		
+		return isTrainingSet;
+	}
+	
+	public static Instances formTestingSet(List<MediaItem> itemsFake, List<MediaItem> itemsReal) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+
+		System.out.println("Item features extraction for fake items");	
+		List<ItemFeatures> itemFeatsFake = ItemFeaturesExtractor.featureExtractionMedia(itemsFake);
+		System.out.println("Item features extraction for real items");	
+		List<ItemFeatures> itemFeatsReal = ItemFeaturesExtractor.featureExtractionMedia(itemsReal);
+		
+		List<ItemFeatures> itemFeaturesTesting = new ArrayList<ItemFeatures>();
+		List<ItemFeaturesAnnotation> itemFeaturesAnnot = new ArrayList<ItemFeaturesAnnotation>();
+
+
+		for (int i = 0; i < itemFeatsFake.size(); i++) {
+			ItemFeaturesAnnotation itemAnnot = new ItemFeaturesAnnotation();
+			itemAnnot.setId(itemFeatsFake.get(i).getId());
+			itemAnnot.setReliability("real");
+			itemFeaturesAnnot.add(itemAnnot);
+			itemFeaturesTesting.add(itemFeatsFake.get(i));
+		}
+		int sizereal = itemFeaturesTesting.size();
+		System.out.println("Testing set of real items " + sizereal);
+		
+		
+		for (int i = 0; i < itemFeatsReal.size(); i++) {
+			ItemFeaturesAnnotation itemAnnot = new ItemFeaturesAnnotation();
+			itemAnnot.setId(itemFeatsReal.get(i).getId());
+			itemAnnot.setReliability("fake");
+			itemFeaturesAnnot.add(itemAnnot);
+			itemFeaturesTesting.add(itemFeatsReal.get(i));
+		}
+		System.out.println("Testing size of fake items "+ (itemFeaturesTesting.size() - sizereal));
+		System.out.println("Testing size "+ itemFeaturesTesting.size());
+		
+		Instances isTestingSet = createTestingSet(itemFeaturesTesting, itemFeaturesAnnot);
+		
+		return isTestingSet;
+	}
+	
+	public static ClassifierAccuracy getClsAccuracy() {
+		return clAcc;
+	}
 
 }
