@@ -17,6 +17,9 @@ Additionally, the following functionalities that constitute part of the above pr
 * Extracting User features from the tweet's user.
 * Extracting Total features (Item & User features merged).
 
+#####Part III#####
+This part presents how to use the framework for classifying items using the agreement based retraining technique.
+
 Part I
 ------------
 
@@ -116,6 +119,19 @@ To extract User features, you should use the `userFeatureExtractionMedia(item)` 
 ###Extracting Total features (Item & User features merged)###
 The `TotalFeatureExtractor` class implements the Total feature extraction.
 To extract Total features, you should use the `featureExtractionMedia(item)` function for a MediaItem or the  `featureExtractionMedia(listMediaItems)` for a list of MediaItems. This function combines the above two functions for Item and User feature extraction and produces the Total features.
+
+Part III
+----------------
+This part uses the `AgreementBasedRetraining` class to classify the items with the agreement based retraining method.
+The method uses two classifiers, one based on Item features and the second on User features. Then, after classifying
+the testing set with both the classifiers, it finds the items that the classifiers' prediction agreed. Using the agreed items
+as training set, it classifies the disagreed ones. It covers three separate cases:
+
+1. Create training set with the agreed items for disagreed classification (`classifyDisagreedOnAgreed` function).
+2. Create training set with the agreed items plus the initial training dataset (`classifyDisagreedOnUpdatedExistingModel` function)
+3. Create training set with the agreed items plus the initial training dataset using a random set of equal number of fake and real samples. (`classifyDisagreedOnUpdatedExistingModelInstance` function)
+
+Note: The method also integrates the bagging technique for classification. It uses a portion of the items of the training set to build a model and classify the samples and it repeats the process several times. The result of the predictions is the majority of the predictions of the classifiers.
 
 Additional information
 ------------------------
