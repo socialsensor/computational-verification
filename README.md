@@ -139,6 +139,7 @@ Additional information
 The computational-verification project is dependent on two SocialSensor projects:
 * [Socialsensor-framework-common](https://github.com/socialsensor/socialsensor-framework-common) : This project contains main classes and interfaces to be used by other SocialSensor projects.
 * [Socialsensor-framework-client](https://github.com/socialsensor/socialsensor-framework-client) : The wrappers for handling information in/from the supported MongoDB database.
+* [Socialsensor-geo-util](https://github.com/socialsensor/geo-util) : A collection of utilities that help with the analysis and indexing of geographic data.
 
 ###Contact information###
 For further details, contact Symeon Papadopoulos (papadop@iti.gr) or Christina Boididou (boididou@iti.gr).
