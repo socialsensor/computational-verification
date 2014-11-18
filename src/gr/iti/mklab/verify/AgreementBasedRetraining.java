@@ -775,12 +775,12 @@ public class AgreementBasedRetraining {
 		
 		//define the fake and real list of MediaItems for Item and User classifier case used for training
 		List<MediaItem> trainFake = new ArrayList<MediaItem>();
-		MediaItemDAOImpl dao = new MediaItemDAOImpl("160.40.50.242", "Malaysia", "FakeItems_unique");
-		trainFake = dao.getLastMediaItems(20);
+		MediaItemDAOImpl dao = new MediaItemDAOImpl("ip", "db", "collection");
+		trainFake = dao.getLastMediaItems(0);
 		
 		List<MediaItem> trainReal = new ArrayList<MediaItem>();
-		MediaItemDAOImpl dao2 = new MediaItemDAOImpl("160.40.50.242", "FerrySinks", "RealItems_unique");
-		trainReal = dao2.getLastMediaItems(20);
+		MediaItemDAOImpl dao2 = new MediaItemDAOImpl("ip", "db", "collection");
+		trainReal = dao2.getLastMediaItems(0);
 		
 		List<List<MediaItem>> list = new ArrayList<List<MediaItem>>();
 		list.add(trainFake);
@@ -792,12 +792,12 @@ public class AgreementBasedRetraining {
 		
 		//define the fake and real list of MediaItems for Item and User classifier case used for testing
 		List<MediaItem> testFake = new ArrayList<MediaItem>();
-		MediaItemDAOImpl dao3 = new MediaItemDAOImpl("160.40.50.242", "Sochi", "ItemsFake_unique");
-		testFake = dao3.getLastMediaItems(40);
+		MediaItemDAOImpl dao3 = new MediaItemDAOImpl("ip", "db", "collection");
+		testFake = dao3.getLastMediaItems(0);
 		
 		List<MediaItem> testReal = new ArrayList<MediaItem>();
-		MediaItemDAOImpl dao4 = new MediaItemDAOImpl("160.40.50.242", "Sochi", "ItemsReal_unique");
-		testReal = dao4.getLastMediaItems(40);
+		MediaItemDAOImpl dao4 = new MediaItemDAOImpl("ip", "db", "collection");
+		testReal = dao4.getLastMediaItems(0);
 	
 		List<List<MediaItem>> list2 = new ArrayList<List<MediaItem>>();
 		list2.add(testFake);
