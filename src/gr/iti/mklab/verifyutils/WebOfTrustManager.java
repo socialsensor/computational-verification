@@ -64,7 +64,7 @@ public class WebOfTrustManager {
 	 * @throws IOException
 	 * @throws JSONException
 	 */
-	public Integer[] getWotValues(String host) throws MalformedURLException,
+	public static Integer[] getWotValues(String host) throws MalformedURLException,
 			IOException, JSONException {
 
 		Integer[] values = { 0, 0 };

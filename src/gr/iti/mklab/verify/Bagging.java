@@ -510,9 +510,7 @@ public class Bagging {
 			
 			currentTrain = DataHandler.getInstance().getTransformedTrainingUser(currentTrain);
 			
-			/*if (testingSetsUser[j]!=null) {
-				System.out.println(testingSetsUser[j].size());
-			}*/
+			
 			testingSetsUser[j] = DataHandler.getInstance().getTransformedTestingUser(testing);
 			
 			FilteredClassifier fc = new FilteredClassifier();

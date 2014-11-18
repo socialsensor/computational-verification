@@ -592,7 +592,7 @@ public class AgreementBasedRetraining {
 		
 		
 		//compare the scores of the cross validation in order to set the pointer value(0 for the Item classifer and 1 for the User classifier)
-		if (itemScore>userScore) {
+		if (itemScore > userScore) {
 			training = new Instances("Rel1", ItemClassifier.getFvAttributes(), ids_agreed.size());
 			testing  = new Instances("Rel2", ItemClassifier.getFvAttributes(), ids_disagreed.size());
 			training.setClassIndex(ItemClassifier.getFvAttributes().size() - 1);
@@ -775,14 +775,12 @@ public class AgreementBasedRetraining {
 		
 		//define the fake and real list of MediaItems for Item and User classifier case used for training
 		List<MediaItem> trainFake = new ArrayList<MediaItem>();
-		MediaItemDAOImpl dao = new MediaItemDAOImpl(Vars.LOCALHOST_IP, "Malaysia", "FakeItems_unique");
+		MediaItemDAOImpl dao = new MediaItemDAOImpl("160.40.50.242", "Malaysia", "FakeItems_unique");
 		trainFake = dao.getLastMediaItems(20);
-		System.out.println("trainFake "+trainFake.size());
 		
 		List<MediaItem> trainReal = new ArrayList<MediaItem>();
-		MediaItemDAOImpl dao2 = new MediaItemDAOImpl(Vars.LOCALHOST_IP, "FerrySinks", "RealItems_unique");
+		MediaItemDAOImpl dao2 = new MediaItemDAOImpl("160.40.50.242", "FerrySinks", "RealItems_unique");
 		trainReal = dao2.getLastMediaItems(20);
-		System.out.println("trainReal "+trainReal.size());
 		
 		List<List<MediaItem>> list = new ArrayList<List<MediaItem>>();
 		list.add(trainFake);
@@ -794,12 +792,12 @@ public class AgreementBasedRetraining {
 		
 		//define the fake and real list of MediaItems for Item and User classifier case used for testing
 		List<MediaItem> testFake = new ArrayList<MediaItem>();
-		MediaItemDAOImpl dao3 = new MediaItemDAOImpl(Vars.LOCALHOST_IP, "Sochi", "ItemsFake_unique");
-		testFake = dao3.getLastMediaItems(5);
+		MediaItemDAOImpl dao3 = new MediaItemDAOImpl("160.40.50.242", "Sochi", "ItemsFake_unique");
+		testFake = dao3.getLastMediaItems(40);
 		
 		List<MediaItem> testReal = new ArrayList<MediaItem>();
-		MediaItemDAOImpl dao4 = new MediaItemDAOImpl(Vars.LOCALHOST_IP, "Sochi", "ItemsReal_unique");
-		testReal = dao4.getLastMediaItems(25);
+		MediaItemDAOImpl dao4 = new MediaItemDAOImpl("160.40.50.242", "Sochi", "ItemsReal_unique");
+		testReal = dao4.getLastMediaItems(40);
 	
 		List<List<MediaItem>> list2 = new ArrayList<List<MediaItem>>();
 		list2.add(testFake);
@@ -808,13 +806,17 @@ public class AgreementBasedRetraining {
 		//call method to create the testing sets with the lists given above
 		testDatasets  = dvb.getTestDatasets(list2);
 		
-		//repeat the process several times in order to differentiate the training set
+		//repeat the process several times in order to differentiate the training set (statement "for" is an optional part, you can just run it once)
 		for (int i=0;i<randomVals.size();i++) {		
 				
 			//values initialization before each trial execution
 			initializeParameters();
 			
 			//call method to find the common sets among the testing sets
+			/*Even if we define one set of testing items, feature extraction may not be performed for some of them, i.e a user's account may be suspended, 
+			so there will be no user features for this one, but only item features. So, we aim to find those items that co-exist in the two sets and have both
+			item and user features.
+			*/
 			sets = dvb.findCommonSets(testDatasets);
 			
 			//define the current value of random values
@@ -829,10 +831,13 @@ public class AgreementBasedRetraining {
 				e.printStackTrace();
 			}
 
+			//trainingSize is the number of the training items Bagging will use
 			int trainingSize = 5;
+			
 			//define the set of classifiers for each case
 			Classifier[] itemCls;
 			Classifier[] userCls;
+			
 			try {
 				
 				//call method to create the bagging classifiers with the trainDatasets and sets for item and user case

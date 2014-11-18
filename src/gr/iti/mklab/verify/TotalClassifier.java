@@ -25,6 +25,8 @@ import gr.iti.mklab.extractfeatures.TotalFeaturesExtractor;
 import gr.iti.mklab.extractfeatures.UserFeaturesExtractor;
 import gr.iti.mklab.utils.Vars;
 
+
+
 /**
  * Class to organize the Total classification using Item and User features 
  * by declaring the attributes,creating the testing set 
@@ -505,7 +507,7 @@ public class TotalClassifier {
 		//probabilities variable
 		double[] probabilities = new double[isTestSet.size()];
 		SerializedClassifier classifier = new SerializedClassifier();
-		classifier.setModelFile(new File(Vars.MODEL_PATH_TOTAL));
+		//classifier.setModelFile(new File(Vars.MODEL_PATH_TOTAL));
 		
 		for (int i = 0; i < isTestSet.numInstances(); i++) {
 			double[] probabilityDistribution = classifier.distributionForInstance(isTestSet.instance(i));

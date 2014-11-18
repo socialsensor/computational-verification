@@ -130,8 +130,6 @@ public class TextProcessing {
 	 */
 	public String eraseAllCharacters(String str){
 		
-		System.out.println("before " + str);
-		
 		str = str.replaceAll("\\.", " "); 
 		str = str.replaceAll(",", " "); // Clear commas
 		str = str.replaceAll("$", " "); // Clear $'s (optional)
@@ -160,7 +158,7 @@ public class TextProcessing {
 		str = str.replaceAll("&lt;", " ");
 		
 		str = str.trim();
-		System.out.println("after " + str);
+		
 		return str;
 	}
 	

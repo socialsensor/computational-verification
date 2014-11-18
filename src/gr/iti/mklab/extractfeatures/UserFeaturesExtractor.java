@@ -27,6 +27,7 @@ import eu.socialsensor.framework.common.domain.MediaItem;
 import eu.socialsensor.framework.common.domain.StreamUser;
 import eu.socialsensor.geo.Countrycoder;
 import gr.iti.mklab.utils.TextProcessing;
+import gr.iti.mklab.verifyutils.WebOfTrustManager;
 
 
 /**
@@ -119,17 +120,17 @@ public class UserFeaturesExtractor {
 		String val = null;
 
 		newsHeadlines = doc.select(".url .profile-field a");
-		System.out.println("news "+newsHeadlines);
+		
 		if (newsHeadlines != null && !newsHeadlines.equals("")
 				&& !newsHeadlines.isEmpty()) {
 			val = newsHeadlines.attr("href");
-			//System.out.println("if "+val);
+			
 		} else {
 			newsHeadlines = doc.select(".ProfileHeaderCard-urlText a");
 			val = newsHeadlines.attr("href");
-			//System.out.println("else "+val+"-");
+			
 		}
-		//System.out.println("val "+val);
+		
 		return val;
 	}
 	
@@ -412,94 +413,7 @@ public class UserFeaturesExtractor {
         return expandedURL;
     }
 	
-	/**
-	 * Calculates the WOT values(trust and safe) of a link. Returns 0 for
-	 * unavailable values.
-	 * 
-	 * @param host
-	 *            the link to calculate for
-	 * @return Integer[] WOT values
-	 * @throws MalformedURLException
-	 * @throws IOException
-	 * @throws JSONException
-	 */
-	public static Integer[] getWotValues(String host) throws JSONException, MalformedURLException, IOException{
-
-		Integer[] values = new Integer[2];
-
-		// String host = item.getMediaLinks().get(0).getMediaLink();
-		System.out.println("the host " +host);
-		
-		String host0 = expandUrl(host);
-		if (host0 == null){
-			host0 = host;
-		}
-		System.out.println("the host transformed "+host0);
-		
-		
-		
-		InputStream response;
-		String res = null;
-		
-		try {
-			response = new URL(
-					"http://api.mywot.com/0.4/public_link_json2?hosts="
-							+ host0
-							+ "/&key=75ff0cddd33a6e731c2d862c570de6c19f78423f")
-					.openStream();
-			res = getStringFromInputStream(response);
-
-		} catch (Exception e1) {
-			
-			
-				host0 = host0.split("/")[0] + "/" + host0.split("/")[1]
-				+ "/" + host0.split("/")[2];
-				
-				response = new URL(
-						"http://api.mywot.com/0.4/public_link_json2?hosts="
-								+ host0
-								+ "/&key=75ff0cddd33a6e731c2d862c570de6c19f78423f")
-						.openStream();
-				
-				res = getStringFromInputStream(response);
-			
-			
-		}
-		//System.out.println("RESPONSE: "+res);
-		JSONObject jO = new JSONObject(res);
-		if (jO.length()>0){
-			System.out.println(jO);
-			String name = jO.names().get(0).toString();
-			
-			System.out.println("the name " + name);
 	
-			try {
-				JSONArray trust = jO.getJSONObject(name).getJSONArray("0");
-				Integer valueTrust = Integer.parseInt(trust.get(0).toString());
-				Integer confTrust = Integer.parseInt(trust.get(1).toString());
-				values[0] = valueTrust * confTrust / 100;
-	
-				JSONArray safe = jO.getJSONObject(name).getJSONArray("4");
-				Integer valueSafe = Integer.parseInt(safe.get(0).toString());
-				Integer confSafe = Integer.parseInt(safe.get(1).toString());
-				values[1] = valueSafe * confSafe / 100;
-				
-				//System.out.println(valueTrust+" "+confTrust+" "+values[0]);
-				//System.out.println(valueSafe+" "+confSafe+" "+values[1]);
-			} catch (Exception e) {
-				values[0] = 0;
-				values[1] = 0;
-				System.out.println("Not available WOT values for this link!");
-			}
-
-		}
-		//System.out.println(values[0]+" "+values[1]);
-		if (values[0]==null || values[1]==null){
-			values[0] = 0;
-			values[1] = 0;
-		}
-		return values;
-	}
 	
 	public static Boolean hasProfileImg(Document doc) {
 		
@@ -535,24 +449,21 @@ public class UserFeaturesExtractor {
 		}
 	}
 	
-	
+	static Countrycoder countrycodingService;
 	public static void initializeFiles() {
 		
 		rootGeonamesDir = "C:/Users/boididou/workspace/twitter-image-verification/resources/files/";
 		citiesFile = rootGeonamesDir + "cities1000_mod.txt";
 		countryInfoFile = rootGeonamesDir + "countryInfo.txt";
 		adminNamesFile = rootGeonamesDir + "admin1CodesASCII_mod.txt";
-		
+		countrycodingService = new Countrycoder(citiesFile, countryInfoFile, adminNamesFile);
 	}
 	
 	public static boolean hasExistingLocation(String locationName) {
 		
-		Countrycoder countrycodingService = new Countrycoder(citiesFile, countryInfoFile, adminNamesFile);
+		
 		String[] locParts = null;
 		boolean hasExistingLocation = false;
-		
-		//System.out.println("Location name "+locationName);
-		//System.out.println(StringUtils.isAlphanumeric(locationName)+" "+!locationName.contains("."));
 		
 		
 		locParts = locationName.split(",");
@@ -592,7 +503,6 @@ public class UserFeaturesExtractor {
 
 		UserFeatures uf = null;
 		
-	
 		/**Get information for features by scraping their twitter profile webpage**/
 		
 		Document doc = null;
@@ -616,8 +526,7 @@ public class UserFeaturesExtractor {
 				Float FolFrieRatio 		= getFollowerFriendRatio(numFriends,numFollowers);
 				Long timesListed		= getTimesListed(doc);
 				Boolean hasURL 			= hasUrl(doc);
-				//System.out.println("has url "+hasURL);
-				
+								
 				Boolean hasBio 			= hasBio(doc);
 				Boolean isVerified  	= isVerifiedUser(doc);
 				Long numTweets 			= getNumTweets(doc);
@@ -643,14 +552,12 @@ public class UserFeaturesExtractor {
 				else {
 					hasExistingLocation = hasExistingLocation(location);
 				}
-				//System.out.println("existing location "+hasExistingLocation);
-				
 				
 				Integer wotTrustUser = null;
 				Integer wotSafeUser	 = null;
 				Integer[] values = {0,0};
 				
-				if (hasURL)	values = getWotValues(getUserUrl(doc));
+				if (hasURL)	values = WebOfTrustManager.getWotValues(getUserUrl(doc));
 				
 				if (values[0] != 0 && values[1] != 0) {
 					wotTrustUser = values[0];
@@ -671,13 +578,6 @@ public class UserFeaturesExtractor {
 						.hasProfileImg(hasProfileImg)
 						.hasHeaderImg(hasHeaderImg).wotSafeUser(wotSafeUser).tweetRatio(tweetRatio).build();
 				
-				/*MongoHandler mh = null;
-				try {
-					mh = new MongoHandler(Vars.LOCALHOST_IP, Vars.DB_NAME_USER_EXTRACTION);
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
-				}
-			mh.insert(uf,Vars.COLL_NAME_USER_EXTRACTION );*/
 			}
 		}catch(Exception e) {
 			System.out.println("User not found for this item.");
@@ -834,8 +734,6 @@ public class UserFeaturesExtractor {
     	
     	UserFeatures userFeat = null;
     	
-    	//String id = item.getUserId();//.replace("Twitter#", "");
-    	//StreamUser su = getStreamUser(id);
     	String username = item.getPageUrl().replaceAll("http://", "").split("//")[1];
     	userFeat = extractUserFeaturesMedia(username, item.getId());
     	
@@ -857,12 +755,7 @@ public class UserFeaturesExtractor {
     	for (int i=0;i<listMediaItems.size();i++){
     		
     		UserFeatures userFeatures = null;
-    		//String id = listMediaItems.get(i).getUserId().replace("Twitter#", "");
-    		
-    		
-    		//StreamUser su = getStreamUser(id);
-    		
-    		
+    		    		
     		String username = listMediaItems.get(i).getPageUrl().replaceAll("http://", "").split("/")[1];
     		
     		userFeatures = extractUserFeaturesMedia(username,listMediaItems.get(i).getId());

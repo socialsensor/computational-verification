@@ -86,7 +86,7 @@ public class DataHandler {
 			norm.setInputFormat(isTrainingSet);
 			
 			// set and print the normalization options
-			System.out.println();
+			
 			String[] options = { "-S", "2.0", "-T", "-1.0" };
 			norm.setOptions(options);
 			//System.out.print("Normalization options:\t");

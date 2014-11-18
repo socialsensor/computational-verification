@@ -554,7 +554,7 @@ public class ItemFeaturesExtractor {
 			}
 	
 			if (substring.equals(longUrl)){
-				System.out.println("Substring equals long url!");
+				//System.out.println("Substring equals long url!");
 				//longUrl = expandUrl(longUrl);
 			}
 			

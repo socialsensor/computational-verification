@@ -251,30 +251,6 @@ public class FileManager {
 	}
 	
 	
-	public void manageRequestedItems(List<ItemFeatures> itemFeats, String db, String collection, String collection2) throws Exception {
-		
-		List<String> ids = new ArrayList<String>();
-		
-		for (ItemFeatures feat:itemFeats) {
-			ids.add(feat.getId());
-		}
-		
-		MongoHandler mh = null;
-		try {
-			mh = new MongoHandler(Vars.LOCALHOST_IP, "Experiments");
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-		
-		ItemDAOImpl dao = new ItemDAOImpl(Vars.LOCALHOST_IP, db, collection);
-		
-		for (String id:ids) {
-			//id = id.replaceAll("Twitter::", "");
-			Item item = dao.getItem(id);
-			mh.insert(item, collection2);
-		}
-		
-		
-	}
+	
 	
 }

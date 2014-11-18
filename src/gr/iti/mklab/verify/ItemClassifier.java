@@ -618,7 +618,7 @@ public class ItemClassifier {
 		//probabilities variable
 		double[] probabilities = new double[isTestSet.size()];
 		SerializedClassifier classifier = new SerializedClassifier();
-		classifier.setModelFile(new File(Vars.MODEL_PATH_ITEM));
+		classifier.setModelFile(new File(Vars.MODEL_PATH_ITEM_sample));
 		
 		for (int i = 0; i < isTestSet.numInstances(); i++) {
 			double[] probabilityDistribution = classifier.distributionForInstance(isTestSet.instance(i));
@@ -629,11 +629,10 @@ public class ItemClassifier {
 	
 	public static Instances formTrainingSet(List<MediaItem> itemsFake, List<MediaItem> itemsReal) throws Exception {
 		
-		
+		System.out.println("Training set: Item features extraction for fake items...");	
 		List<ItemFeatures> itemFeatsFake = ItemFeaturesExtractor.featureExtractionMedia(itemsFake);
-		System.out.println("itemFeatsFake "+itemFeatsFake.size());
+		System.out.println("Training set: Item features extraction for real items...");	
 		List<ItemFeatures> itemFeatsReal = ItemFeaturesExtractor.featureExtractionMedia(itemsReal);
-		System.out.println("itemFeatsReal "+itemFeatsReal.size());
 		
 		Instances isTrainingSet = null;
 		// define the list of itemFeatures that are used for training
@@ -672,9 +671,9 @@ public class ItemClassifier {
 	
 	public static Instances formTestingSet(List<MediaItem> itemsFake, List<MediaItem> itemsReal) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
 
-		System.out.println("Item features extraction for fake items");	
+		System.out.println("Testing set: Item features extraction for fake items...");	
 		List<ItemFeatures> itemFeatsFake = ItemFeaturesExtractor.featureExtractionMedia(itemsFake);
-		System.out.println("Item features extraction for real items");	
+		System.out.println("Testing set: Item features extraction for real items...");	
 		List<ItemFeatures> itemFeatsReal = ItemFeaturesExtractor.featureExtractionMedia(itemsReal);
 		
 		List<ItemFeatures> itemFeaturesTesting = new ArrayList<ItemFeatures>();

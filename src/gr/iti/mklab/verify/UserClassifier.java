@@ -633,12 +633,11 @@ public class UserClassifier {
 	
 	public static Instances formTrainingSet(List<MediaItem> itemsFake, List<MediaItem> itemsReal) throws Exception {
 		
-		
+		System.out.println("Training set: User features extraction for fake items...");	
 		List<UserFeatures> userFeatsFake = UserFeaturesExtractor.userFeatureExtractionMedia(itemsFake);
-		System.out.println("userFeatsFake user "+ userFeatsFake.size());
+		System.out.println("Training set: User features extraction for real items...");	
 		List<UserFeatures> userFeatsReal = UserFeaturesExtractor.userFeatureExtractionMedia(itemsReal);
-		System.out.println("userFeatsReal user "+ userFeatsReal.size());
-		
+				
 		// define the list of User Features that are used for training
 		List<UserFeatures> userFeaturesTraining = new ArrayList<UserFeatures>();
 		
@@ -684,9 +683,9 @@ public class UserClassifier {
 	
 	public static Instances formTestingSet(List<MediaItem> itemsFake, List<MediaItem> itemsReal) throws Exception{
 		
-		System.out.println("User features extraction for fake items");	
+		System.out.println("Testing set: User features extraction for fake items");	
 		List<UserFeatures> itemFeatsFake = UserFeaturesExtractor.userFeatureExtractionMedia(itemsFake);
-		System.out.println("User features extraction for real items");
+		System.out.println("Testing set: User features extraction for real items");
 		List<UserFeatures> itemFeatsReal = UserFeaturesExtractor.userFeatureExtractionMedia(itemsReal);
 		
 		// define the list of User Features that are used for training
