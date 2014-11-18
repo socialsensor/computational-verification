@@ -683,22 +683,22 @@ public class ItemClassifier {
 		for (int i = 0; i < itemFeatsFake.size(); i++) {
 			ItemFeaturesAnnotation itemAnnot = new ItemFeaturesAnnotation();
 			itemAnnot.setId(itemFeatsFake.get(i).getId());
-			itemAnnot.setReliability("real");
+			itemAnnot.setReliability("fake");
 			itemFeaturesAnnot.add(itemAnnot);
 			itemFeaturesTesting.add(itemFeatsFake.get(i));
 		}
-		int sizereal = itemFeaturesTesting.size();
-		System.out.println("Testing set of real items " + sizereal);
+		int sizefake = itemFeaturesTesting.size();
+		System.out.println("Testing set of fake items " + sizefake);
 		
 		
 		for (int i = 0; i < itemFeatsReal.size(); i++) {
 			ItemFeaturesAnnotation itemAnnot = new ItemFeaturesAnnotation();
 			itemAnnot.setId(itemFeatsReal.get(i).getId());
-			itemAnnot.setReliability("fake");
+			itemAnnot.setReliability("real");
 			itemFeaturesAnnot.add(itemAnnot);
 			itemFeaturesTesting.add(itemFeatsReal.get(i));
 		}
-		System.out.println("Testing size of fake items "+ (itemFeaturesTesting.size() - sizereal));
+		System.out.println("Testing size of real items "+ (itemFeaturesTesting.size() - sizefake));
 		System.out.println("Testing size "+ itemFeaturesTesting.size());
 		
 		Instances isTestingSet = createTestingSet(itemFeaturesTesting, itemFeaturesAnnot);
