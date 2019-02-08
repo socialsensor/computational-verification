@@ -141,5 +141,19 @@ The computational-verification project is dependent on two SocialSensor projects
 * [Socialsensor-framework-client](https://github.com/socialsensor/socialsensor-framework-client) : The wrappers for handling information in/from the supported MongoDB database.
 * [Socialsensor-geo-util](https://github.com/socialsensor/geo-util) : A collection of utilities that help with the analysis and indexing of geographic data.
 
+If you use this framework for your research, please include a citation to the following paper: Boididou, C., Papadopoulos, S., Zampoglou, M., Apostolidis, L., Papadopoulou, O., & Kompatsiaris, Y. (2018). [Detection and visualization of misleading content on Twitter](https://link.springer.com/article/10.1007/s13735-017-0143-x). International Journal of Multimedia Information Retrieval, 7(1), 71-86.
+
+    @article{boididou2018detection,
+      author = {Detection and visualization of misleading content on Twitter},
+      title = {Boididou, Christina and Papadopoulos, Symeon and Zampoglou, Markos and Apostolidis, Lazaros and Papadopoulou, Olga and Kompatsiaris, Yiannis},
+      journal = {International Journal of Multimedia Information Retrieval},
+      volume={7},
+      number={1},
+      pages={71--86},
+      year={2018},
+      doi = "10.1007/s13735-017-0143-x",     
+      publisher={Springer}
+    }
+
 ###Contact information###
 For further details, contact Symeon Papadopoulos (papadop@iti.gr) or Christina Boididou (boididou@iti.gr).
