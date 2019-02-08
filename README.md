@@ -1,7 +1,8 @@
 computational-verification
 ==========================
 
-A framework for "learning" how to classify social content as truthful/reliable or not.
+A framework for "learning" how to classify social content as truthful/reliable or not. 
+This version of the framework is outdated, please refer to the [updated version](https://github.com/MKLab-ITI/computational-verification).
 
 Getting started
 ---------------
